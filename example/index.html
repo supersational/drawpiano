@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DrawKeyboard Library Demo</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --panel: #1a1f29;
+      --text: #e6eaf2;
+      --muted: #9098a6;
+      --accent: #4ea1ff;
+      --border: #232b38;
+    }
+    
+    * { box-sizing: border-box; }
+    
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      background: linear-gradient(135deg, var(--accent) 0%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.125rem;
+      margin: 0 0 2rem;
+    }
+    
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 10px 30px rgba(0,0,0,0.25);
+    }
+    
+    .keyboard-container {
+      position: relative;
+      margin: 20px 0;
+    }
+    
+    #keyboardCanvas {
+      display: block;
+      width: 100%;
+      touch-action: none;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    
+    .control-group {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    
+    .control-group h3 {
+      margin: 0 0 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .control {
+      margin-bottom: 12px;
+    }
+    
+    .control:last-child {
+      margin-bottom: 0;
+    }
+    
+    .control label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    
+    .control input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .control input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    
+    .control input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    
+    .control input[type="color"] {
+      width: 100%;
+      height: 40px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      border: 1px solid #4b5563;
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+    
+    .btn:hover {
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      transform: translateY(-1px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .info-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    
+    .chip {
+      background: rgba(var(--accent-rgb, 78, 161, 255), 0.1);
+      border: 1px solid rgba(var(--accent-rgb, 78, 161, 255), 0.2);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    
+    .log-panel {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+    
+    .log-panel h3 {
+      margin: 0 0 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .log {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      background: rgba(0,0,0,0.3);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+      min-height: 60px;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+    
+    .examples {
+      margin-top: 2rem;
+    }
+    
+    .examples h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+      color: var(--text);
+    }
+    
+    .example-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    
+    .example-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    
+    .example-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    .example-card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    
+    .example-card pre {
+      background: rgba(0,0,0,0.3);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.75rem;
+      overflow-x: auto;
+      margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+      .container { padding: 16px; }
+      h1 { font-size: 2rem; }
+      .controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DrawKeyboard</h1>
+    <p class="subtitle">A touch-enabled virtual piano keyboard with MIDI output</p>
+    
+    <div class="panel">
+      <div class="keyboard-container">
+        <canvas id="keyboardCanvas"></canvas>
+      </div>
+      
+      <div class="controls">
+        <div class="control-group">
+          <h3>Dimensions</h3>
+          <div class="control">
+            <label>Key Height: <span id="heightVal">100</span>px</label>
+            <input id="heightSlider" type="range" min="60" max="200" value="100" />
+          </div>
+          <div class="control">
+            <label>Key Width: <span id="widthVal">15</span>px</label>
+            <input id="widthSlider" type="range" min="10" max="40" value="15" />
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Range & Velocity</h3>
+          <div class="control">
+            <label>Starting Note (MIDI): <span id="startNoteVal">12</span></label>
+            <input id="startNoteSlider" type="range" min="0" max="96" value="12" />
+          </div>
+          <div class="control">
+            <label>Note Velocity: <span id="velocityVal">100</span></label>
+            <input id="velocitySlider" type="range" min="1" max="127" value="100" />
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Styling & Controls</h3>
+          <div class="control">
+            <label>Highlight Color</label>
+            <input id="colorPicker" type="color" value="#4ea1ff" />
+          </div>
+          <div class="control">
+            <button id="resetBtn" class="btn">Reset Pitch Bend & Modulation</button>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <h3>Touch Gestures</h3>
+          <div class="info-chips">
+            <span class="chip">Tap: Play note</span>
+            <span class="chip">Drag X: Pitch bend</span>
+            <span class="chip">Drag Y↑: Modulation (CC1)</span>
+            <span class="chip">Drag Y↓: Expression (CC11)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="log-panel">
+      <h3>MIDI Output</h3>
+      <div class="log" id="midiLog">Ready... Touch the keyboard to generate MIDI events.</div>
+    </div>
+    
+    <div class="examples">
+      <h2>Usage Examples</h2>
+      <div class="example-grid">
+        <div class="example-card">
+          <h3>Basic Setup</h3>
+          <p>Create a simple keyboard with default settings</p>
+          <pre><code>import { DrawKeyboard } from 'drawkeyboard';
+
+const keyboard = new DrawKeyboard({
+  container: document.getElementById('keyboard'),
+  onNoteOn: (note, velocity) => {
+    console.log('Note on:', note, velocity);
+  },
+  onNoteOff: (note) => {
+    console.log('Note off:', note);
+  }
+});</code></pre>
+        </div>
+        
+        <div class="example-card">
+          <h3>Custom Configuration</h3>
+          <p>Configure key size, range, and styling</p>
+          <pre><code>const keyboard = new DrawKeyboard({
+  keyWidth: 20,
+  keyHeight: 120,
+  baseNote: 60, // Middle C
+  highlightColor: '#ff6b6b',
+  velocity: 80,
+  onMidi: (message) => {
+    // Handle all MIDI messages
+    console.log('MIDI:', message);
+  }
+});</code></pre>
+        </div>
+        
+        <div class="example-card">
+          <h3>Programmatic Control</h3>
+          <p>Press and release keys from code</p>
+          <pre><code>// Press middle C
+keyboard.press(60, 100);
+
+// Release after 500ms
+setTimeout(() => {
+  keyboard.release(60);
+}, 500);
+
+// Change settings dynamically
+keyboard.setKeyWidth(25);
+keyboard.setBaseNote(48);</code></pre>
+        </div>
+        
+        <div class="example-card">
+          <h3>Event Listeners</h3>
+          <p>Listen for keyboard events</p>
+          <pre><code>keyboard.addEventListener('noteOn', (e) => {
+  console.log('Note pressed:', e.detail);
+});
+
+keyboard.addEventListener('pitchBend', (e) => {
+  console.log('Pitch bend:', e.detail.value);
+});
+
+keyboard.addEventListener('controlChange', (e) => {
+  console.log('CC:', e.detail);
+});</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // For development, import from source
+    // In production, you would use: import { DrawKeyboard } from 'drawkeyboard';
+    import { DrawKeyboard } from '../src/index.ts';
+
+    // Create keyboard instance
+    const keyboard = new DrawKeyboard({
+      canvas: document.getElementById('keyboardCanvas'),
+      onMidi: (message) => {
+        const [status, data1, data2] = message;
+        const hex = (n) => ('0' + n.toString(16)).slice(-2);
+        const timestamp = new Date().toLocaleTimeString();
+        
+        let eventType = 'Unknown';
+        if ((status & 0xF0) === 0x90 && data2 > 0) eventType = 'Note On';
+        else if ((status & 0xF0) === 0x80 || ((status & 0xF0) === 0x90 && data2 === 0)) eventType = 'Note Off';
+        else if ((status & 0xF0) === 0xE0) eventType = 'Pitch Bend';
+        else if ((status & 0xF0) === 0xB0) eventType = 'Control Change';
+        
+        const logEntry = `[${timestamp}] ${eventType}: ${hex(status)} ${data1} ${data2 ?? ''}`;
+        const logElement = document.getElementById('midiLog');
+        logElement.textContent = logEntry + '\n' + logElement.textContent.split('\n').slice(0, 9).join('\n');
+      },
+      onNoteOn: (note, velocity) => {
+        console.log('Note On:', note, velocity);
+      },
+      onNoteOff: (note) => {
+        console.log('Note Off:', note);
+      }
+    });
+
+    // Control elements
+    const controls = {
+      heightSlider: document.getElementById('heightSlider'),
+      widthSlider: document.getElementById('widthSlider'),
+      startNoteSlider: document.getElementById('startNoteSlider'),
+      velocitySlider: document.getElementById('velocitySlider'),
+      colorPicker: document.getElementById('colorPicker'),
+      resetBtn: document.getElementById('resetBtn'),
+      
+      heightVal: document.getElementById('heightVal'),
+      widthVal: document.getElementById('widthVal'),
+      startNoteVal: document.getElementById('startNoteVal'),
+      velocityVal: document.getElementById('velocityVal'),
+    };
+
+    // Event listeners for controls
+    controls.heightSlider.addEventListener('input', () => {
+      const value = parseInt(controls.heightSlider.value);
+      controls.heightVal.textContent = value;
+      keyboard.setKeyHeight(value);
+    });
+
+    controls.widthSlider.addEventListener('input', () => {
+      const value = parseInt(controls.widthSlider.value);
+      controls.widthVal.textContent = value;
+      keyboard.setKeyWidth(value);
+    });
+
+    controls.startNoteSlider.addEventListener('input', () => {
+      const value = parseInt(controls.startNoteSlider.value);
+      controls.startNoteVal.textContent = value;
+      keyboard.setBaseNote(value);
+    });
+
+    controls.velocitySlider.addEventListener('input', () => {
+      const value = parseInt(controls.velocitySlider.value);
+      controls.velocityVal.textContent = value;
+      keyboard.setVelocity(value);
+    });
+
+    controls.colorPicker.addEventListener('input', () => {
+      keyboard.setHighlightColor(controls.colorPicker.value);
+    });
+
+    controls.resetBtn.addEventListener('click', () => {
+      keyboard.resetModulationAndPitchBend();
+    });
+
+    // Demo: Play a chord programmatically
+    let chordTimeout;
+    function playChord() {
+      const chord = [60, 64, 67]; // C major
+      chord.forEach((note, i) => {
+        setTimeout(() => keyboard.press(note, 80, '#ff6b6b', true), i * 100);
+      });
+      chordTimeout = setTimeout(() => {
+        chord.forEach(note => keyboard.release(note, true));
+      }, 2000);
+    }
+
+    // Add demo button
+    const demoBtn = document.createElement('button');
+    demoBtn.textContent = 'Play C Major Chord';
+    demoBtn.className = 'btn';
+    demoBtn.style.marginTop = '12px';
+    demoBtn.addEventListener('click', playChord);
+    controls.resetBtn.parentElement.appendChild(demoBtn);
+
+    // Expose to window for console experimentation
+    window.keyboard = keyboard;
+    window.DrawKeyboard = DrawKeyboard;
+    
+    console.log('🎹 DrawKeyboard demo ready! Try:');
+    console.log('- keyboard.press(60, 100) // Press middle C');
+    console.log('- keyboard.release(60) // Release middle C');
+    console.log('- keyboard.setKeyWidth(25) // Change key width');
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>DrawKeyboard UMD Test</title>
+  <style>
+    body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+    #keyboard { margin: 20px 0; }
+    #log { background: #f0f0f0; padding: 10px; border-radius: 4px; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>DrawKeyboard UMD Test</h1>
+  <div id="keyboard"></div>
+  <div id="log">Ready...</div>
+
+  <script src="../dist/umd/drawkeyboard.js"></script>
+  <script>
+    const keyboard = new DrawKeyboard({
+      container: document.getElementById('keyboard'),
+      onNoteOn: (note, velocity) => {
+        document.getElementById('log').textContent = `Note On: ${note} velocity: ${velocity}`;
+        console.log('Note On:', note, velocity);
+      },
+      onNoteOff: (note) => {
+        document.getElementById('log').textContent = `Note Off: ${note}`;
+        console.log('Note Off:', note);
+      }
+    });
+
+    // Expose for testing
+    window.keyboard = keyboard;
+    console.log('DrawKeyboard UMD test ready!');
+    console.log('Try: keyboard.press(60, 100)');
+  </script>
+</body>
+</html>

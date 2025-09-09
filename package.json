@@ -1,0 +1,77 @@
+{
+  "name": "drawkeyboard",
+  "version": "1.0.0",
+  "description": "A touch-enabled virtual piano keyboard with MIDI output for web applications",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "unpkg": "dist/umd/drawkeyboard.min.js",
+  "jsdelivr": "dist/umd/drawkeyboard.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run clean && npm run build:types && npm run build:esm && npm run build:cjs && npm run build:umd",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "build:esm": "tsc --module esnext --outDir dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "build:umd": "rollup -c",
+    "clean": "rm -rf dist",
+    "preview": "vite preview",
+    "test": "echo \"Tests coming soon\" && exit 0",
+    "test:coverage": "echo \"Coverage coming soon\" && exit 0",
+    "lint": "echo \"Linting coming soon\" && exit 0",
+    "lint:fix": "echo \"Lint fix coming soon\" && exit 0",
+    "prepublishOnly": "npm run build",
+    "serve:umd": "python3 -m http.server 8080",
+    "size": "npm run build && du -sh dist/"
+  },
+  "keywords": [
+    "piano",
+    "keyboard",
+    "midi",
+    "music",
+    "canvas",
+    "touch",
+    "virtual-instrument",
+    "web-audio"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/drawkeyboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/drawkeyboard/issues"
+  },
+  "homepage": "https://github.com/yourusername/drawkeyboard#readme",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/node": "^20.8.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "eslint": "^8.50.0",
+    "rollup": "^3.29.4",
+    "tslib": "^2.8.1",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.6"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
