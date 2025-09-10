@@ -18,27 +18,38 @@ export interface DrawKeyboardOptions {
   /** Container element or canvas element */
   container?: HTMLElement;
   canvas?: HTMLCanvasElement;
-  
+
   /** Key dimensions */
   keyWidth?: number;
   keyHeight?: number;
-  
+
   /** Note range */
-  baseNote?: number;
+  baseNote?: number | string; // Accepts number (MIDI) or note name like 'C4'
   maxWhiteKeys?: number;
-  
+
   /** Visual styling */
   highlightColor?: string;
-  
+  showOctaveLabels?: boolean;
+  ariaLabel?: string;
+
   /** MIDI settings */
   velocity?: number;
-  
+
   /** Event callbacks */
   onMidi?: (message: MIDIMessage) => void;
   onNoteOn?: (note: number, velocity: number) => void;
   onNoteOff?: (note: number) => void;
   onPitchBend?: (value14bit: number) => void;
   onControlChange?: (controller: number, value: number) => void;
+
+  /** Gestures configuration */
+  gestures?: {
+    pitchBend?: boolean;
+    modulation?: boolean;
+  };
+
+  /** QWERTY keyboard layout */
+  qwertyLayout?: 'none' | 'singleRow' | 'doubleRow';
 }
 
 /**
@@ -62,11 +73,11 @@ export const PIANO_KEYS = {
  * Custom keyboard events
  */
 export interface DrawKeyboardEventMap {
-  'midi': CustomEvent<MIDIMessage>;
-  'noteOn': CustomEvent<{ note: number; velocity: number }>;
-  'noteOff': CustomEvent<{ note: number }>;
-  'pitchBend': CustomEvent<{ value: number }>;
-  'controlChange': CustomEvent<{ controller: number; value: number }>;
+  midi: CustomEvent<MIDIMessage>;
+  noteOn: CustomEvent<{ note: number; velocity: number }>;
+  noteOff: CustomEvent<{ note: number }>;
+  pitchBend: CustomEvent<{ value: number }>;
+  controlChange: CustomEvent<{ controller: number; value: number }>;
 }
 
 declare global {

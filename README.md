@@ -22,6 +22,7 @@ npm install drawkeyboard
 ## Quick Start
 
 ### ES Modules
+
 ```javascript
 import { DrawKeyboard } from 'drawkeyboard';
 
@@ -33,11 +34,13 @@ const keyboard = new DrawKeyboard({
 ```
 
 ### CommonJS
+
 ```javascript
 const { DrawKeyboard } = require('drawkeyboard');
 ```
 
 ### CDN (UMD)
+
 ```html
 <script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
 <script>
@@ -55,21 +58,32 @@ const keyboard = new DrawKeyboard({
   // Container and canvas
   container?: HTMLElement,          // Container element
   canvas?: HTMLCanvasElement,       // Existing canvas (optional)
-  
+
   // Key dimensions
   keyWidth?: number,               // Width of white keys (default: 15)
   keyHeight?: number,              // Height of keys (default: 100)
-  
+
   // Note range
-  baseNote?: number,               // Starting MIDI note (default: 12)
+  baseNote?: number | string,      // MIDI (e.g., 60) or note name (e.g., 'C4')
   maxWhiteKeys?: number,           // Maximum white keys to show (default: 68)
-  
+
   // Visual styling
   highlightColor?: string,         // Color for pressed keys (default: '#4ea1ff')
-  
+  showOctaveLabels?: boolean,      // Show 'C1', 'C2' labels (default: true)
+  ariaLabel?: string,              // A11y label for the canvas element
+
   // MIDI settings
   velocity?: number,               // Default note velocity (default: 100)
-  
+
+  // Gestures
+  gestures?: {                     // Enable/disable touch gestures
+    pitchBend?: boolean,
+    modulation?: boolean,
+  },
+
+  // QWERTY input
+  qwertyLayout?: 'none' | 'singleRow' | 'doubleRow',
+
   // Event callbacks
   onMidi?: (message: [number, number, number?]) => void,
   onNoteOn?: (note: number, velocity: number) => void,
@@ -82,26 +96,30 @@ const keyboard = new DrawKeyboard({
 ## API Methods
 
 ### Key Control
+
 ```typescript
 // Programmatically press/release keys
-keyboard.press(60, 100);           // Press middle C with velocity 100
-keyboard.release(60);              // Release middle C
+keyboard.press(60, 100); // Press middle C with velocity 100
+keyboard.release(60); // Release middle C
 
 // Send MIDI messages directly
 keyboard.sendMidiMessage([0x90, 60, 100]); // Note on
 ```
 
 ### Configuration
+
 ```typescript
 // Update settings dynamically
 keyboard.setKeyWidth(20);
 keyboard.setKeyHeight(120);
-keyboard.setBaseNote(48);          // Start from C2
+keyboard.setBaseNote(48); // Start from C2
+keyboard.setBaseNoteName('C3'); // Start from C3 (string)
 keyboard.setVelocity(80);
 keyboard.setHighlightColor('#ff6b6b');
 ```
 
 ### Utility Methods
+
 ```typescript
 // Get key position for overlays
 const rect = keyboard.getNoteRect(60); // Get middle C position
@@ -119,6 +137,12 @@ keyboard.destroy();
 - **Drag horizontally**: Pitch bend
 - **Drag up**: Modulation wheel (CC1)
 - **Drag down**: Expression controller (CC11)
+
+To disable gestures:
+
+```ts
+new DrawKeyboard({ gestures: { pitchBend: false, modulation: false } });
+```
 
 ## Events
 
@@ -149,6 +173,7 @@ keyboard.addEventListener('midi', (e) => {
 ## MIDI Integration
 
 ### Web MIDI API Example
+
 ```javascript
 import { DrawKeyboard } from 'drawkeyboard';
 
@@ -162,11 +187,12 @@ const keyboard = new DrawKeyboard({
     if (midiOutput) {
       midiOutput.send(message);
     }
-  }
+  },
 });
 ```
 
 ### Audio Context Integration
+
 ```javascript
 import { DrawKeyboard } from 'drawkeyboard';
 
@@ -180,15 +206,15 @@ const keyboard = new DrawKeyboard({
     const frequency = 440 * Math.pow(2, (note - 69) / 12);
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     oscillator.type = 'sine';
-    gainNode.gain.setValueAtTime(velocity / 127 * 0.3, audioContext.currentTime);
-    
+    gainNode.gain.setValueAtTime((velocity / 127) * 0.3, audioContext.currentTime);
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     oscillator.start();
-    
+
     activeNotes.set(note, { oscillator, gainNode });
   },
   onNoteOff: (note) => {
@@ -198,7 +224,7 @@ const keyboard = new DrawKeyboard({
       noteData.oscillator.stop(audioContext.currentTime + 0.1);
       activeNotes.delete(note);
     }
-  }
+  },
 });
 ```
 
@@ -225,6 +251,32 @@ npm run build
 npm test
 ```
 
+## Keyboard Input
+
+Enable QWERTY input:
+
+```ts
+new DrawKeyboard({ qwertyLayout: 'singleRow' });
+// or
+new DrawKeyboard({ qwertyLayout: 'doubleRow' });
+```
+
+## Built Files
+
+The library ships multiple formats to support different environments:
+
+- ESM: `dist/esm/index.js` (for modern bundlers)
+- CommonJS: `dist/cjs/index.js` (for Node.js and older bundlers)
+- UMD: `dist/umd/drawkeyboard.js` (browser global)
+- UMD Minified: `dist/umd/drawkeyboard.min.js` (production)
+- Types: `dist/types/index.d.ts` (TypeScript definitions)
+
+## Live Examples
+
+- Development: run `npm run dev` and open the local URL printed by Vite
+- UMD Test: open `test-umd.html` in a browser
+- Production: `npm run build` then serve the `dist/` folder or open `example/index.html`
+
 ## License
 
-MIT © [Your Name]
+MIT © Sven Hollowell

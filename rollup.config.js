@@ -6,6 +6,23 @@ import terser from '@rollup/plugin-terser';
 export default defineConfig({
   input: 'src/index.ts',
   output: [
+    // ESM build
+    {
+      dir: 'dist/esm',
+      format: 'esm',
+      sourcemap: true,
+      entryFileNames: 'index.js',
+      exports: 'named',
+    },
+    // CJS build
+    {
+      dir: 'dist/cjs',
+      format: 'cjs',
+      sourcemap: true,
+      entryFileNames: 'index.js',
+      exports: 'named',
+    },
+    // UMD builds
     {
       file: 'dist/umd/drawkeyboard.js',
       format: 'umd',
@@ -25,7 +42,7 @@ export default defineConfig({
     typescript({
       tsconfig: './tsconfig.json',
       declaration: false,
-      outDir: 'dist/umd',
+      declarationMap: false,
     }),
   ],
 });

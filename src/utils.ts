@@ -6,7 +6,7 @@ export const mod = (n: number, m: number): number => ((n % m) + m) % m;
 /**
  * Clamp a value between min and max
  */
-export const clamp = (value: number, min: number, max: number): number => 
+export const clamp = (value: number, min: number, max: number): number =>
   Math.max(min, Math.min(max, value));
 
 /**
@@ -15,11 +15,11 @@ export const clamp = (value: number, min: number, max: number): number =>
 export function mouseToTouch(element: HTMLElement): void {
   // Polyfill Touch and TouchEvent if needed
   if (typeof window.Touch === 'undefined' || typeof window.TouchEvent === 'undefined') {
-    (window as any).Touch = function(config: any) {
+    (window as any).Touch = function (config: any) {
       return Object.assign(config, {});
     };
-    
-    (window as any).TouchEvent = function(type: string, config: any) {
+
+    (window as any).TouchEvent = function (type: string, config: any) {
       const evt = new Event(type, {
         bubbles: config.bubbles,
         cancelable: config.cancelable,
@@ -34,7 +34,7 @@ export function mouseToTouch(element: HTMLElement): void {
 
   const convertMouse = (evt: MouseEvent): boolean => {
     if (evt.button !== 0) return true; // Only handle left clicks
-    
+
     evt.preventDefault();
     evt.stopImmediatePropagation();
     element.dispatchEvent(changeMouseEventToTouchEvent(evt));
@@ -65,13 +65,14 @@ export function mouseToTouch(element: HTMLElement): void {
       pageY: evt.pageY,
     });
 
-    const touchEventType = evt.type === 'mousedown' 
-      ? 'touchstart' 
-      : evt.type === 'mouseup' 
-        ? 'touchend' 
-        : evt.type === 'mousemove' 
-          ? 'touchmove' 
-          : 'touchstart';
+    const touchEventType =
+      evt.type === 'mousedown'
+        ? 'touchstart'
+        : evt.type === 'mouseup'
+          ? 'touchend'
+          : evt.type === 'mousemove'
+            ? 'touchmove'
+            : 'touchstart';
 
     const touchEvent = new (window as any).TouchEvent(touchEventType, {
       cancelable: true,

@@ -3,6 +3,7 @@
 ## 🎹 Quick Start
 
 ### Via npm/yarn
+
 ```bash
 npm install drawkeyboard
 # or
@@ -10,6 +11,7 @@ yarn add drawkeyboard
 ```
 
 ### Via CDN
+
 ```html
 <script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
 ```
@@ -17,51 +19,55 @@ yarn add drawkeyboard
 ## 📦 Usage Examples
 
 ### 1. ES Modules (Modern)
+
 ```javascript
 import { DrawKeyboard } from 'drawkeyboard';
 
 const keyboard = new DrawKeyboard({
   container: document.getElementById('keyboard'),
   onNoteOn: (note, velocity) => console.log('🎵 Note on:', note),
-  onNoteOff: (note) => console.log('🔇 Note off:', note)
+  onNoteOff: (note) => console.log('🔇 Note off:', note),
 });
 ```
 
 ### 2. CommonJS (Node.js)
+
 ```javascript
 const { DrawKeyboard } = require('drawkeyboard');
 
 const keyboard = new DrawKeyboard({
-  container: document.getElementById('keyboard')
+  container: document.getElementById('keyboard'),
 });
 ```
 
 ### 3. UMD (Browser Global)
+
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Piano App</title>
-</head>
-<body>
-  <div id="keyboard"></div>
-  
-  <script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
-  <script>
-    const keyboard = new DrawKeyboard({
-      container: document.getElementById('keyboard'),
-      keyWidth: 20,
-      keyHeight: 120,
-      onNoteOn: (note, velocity) => {
-        console.log('Note pressed:', note, 'velocity:', velocity);
-      }
-    });
-  </script>
-</body>
+  <head>
+    <title>Piano App</title>
+  </head>
+  <body>
+    <div id="keyboard"></div>
+
+    <script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
+    <script>
+      const keyboard = new DrawKeyboard({
+        container: document.getElementById('keyboard'),
+        keyWidth: 20,
+        keyHeight: 120,
+        onNoteOn: (note, velocity) => {
+          console.log('Note pressed:', note, 'velocity:', velocity);
+        },
+      });
+    </script>
+  </body>
 </html>
 ```
 
 ### 4. TypeScript
+
 ```typescript
 import { DrawKeyboard, DrawKeyboardOptions } from 'drawkeyboard';
 
@@ -72,7 +78,7 @@ const options: DrawKeyboardOptions = {
   baseNote: 60, // Middle C
   onNoteOn: (note: number, velocity: number) => {
     console.log(`Note ${note} pressed with velocity ${velocity}`);
-  }
+  },
 };
 
 const keyboard = new DrawKeyboard(options);
@@ -81,24 +87,26 @@ const keyboard = new DrawKeyboard(options);
 ## 🎛️ Advanced Examples
 
 ### With Web MIDI API
+
 ```javascript
 import { DrawKeyboard } from 'drawkeyboard';
 
-navigator.requestMIDIAccess().then(midiAccess => {
+navigator.requestMIDIAccess().then((midiAccess) => {
   const midiOutput = Array.from(midiAccess.outputs.values())[0];
-  
+
   const keyboard = new DrawKeyboard({
     container: document.getElementById('keyboard'),
     onMidi: (message) => {
       if (midiOutput) {
         midiOutput.send(message);
       }
-    }
+    },
   });
 });
 ```
 
 ### With Web Audio API
+
 ```javascript
 import { DrawKeyboard } from 'drawkeyboard';
 
@@ -111,15 +119,15 @@ const keyboard = new DrawKeyboard({
     const frequency = 440 * Math.pow(2, (note - 69) / 12);
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     oscillator.type = 'sine';
-    gainNode.gain.setValueAtTime(velocity / 127 * 0.3, audioContext.currentTime);
-    
+    gainNode.gain.setValueAtTime((velocity / 127) * 0.3, audioContext.currentTime);
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     oscillator.start();
-    
+
     activeNotes.set(note, { oscillator, gainNode });
   },
   onNoteOff: (note) => {
@@ -129,11 +137,12 @@ const keyboard = new DrawKeyboard({
       noteData.oscillator.stop(audioContext.currentTime + 0.1);
       activeNotes.delete(note);
     }
-  }
+  },
 });
 ```
 
 ### React Component
+
 ```jsx
 import React, { useEffect, useRef } from 'react';
 import { DrawKeyboard } from 'drawkeyboard';
@@ -148,7 +157,7 @@ function PianoKeyboard({ onNotePlay }) {
         container: containerRef.current,
         onNoteOn: (note, velocity) => {
           onNotePlay?.(note, velocity);
-        }
+        },
       });
     }
 
@@ -164,6 +173,7 @@ export default PianoKeyboard;
 ```
 
 ### Vue Component
+
 ```vue
 <template>
   <div ref="keyboardContainer"></div>
@@ -182,7 +192,7 @@ onMounted(() => {
   keyboard = new DrawKeyboard({
     container: keyboardContainer.value,
     onNoteOn: (note, velocity) => emit('noteOn', { note, velocity }),
-    onNoteOff: (note) => emit('noteOff', { note })
+    onNoteOff: (note) => emit('noteOff', { note }),
   });
 });
 
@@ -197,7 +207,7 @@ onUnmounted(() => {
 The library provides multiple build formats:
 
 - **ESM**: `dist/esm/index.js` - For modern bundlers
-- **CommonJS**: `dist/cjs/index.js` - For Node.js and older bundlers  
+- **CommonJS**: `dist/cjs/index.js` - For Node.js and older bundlers
 - **UMD**: `dist/umd/drawkeyboard.js` - For browser globals
 - **UMD Minified**: `dist/umd/drawkeyboard.min.js` - Production ready
 - **Types**: `dist/types/index.d.ts` - TypeScript definitions
