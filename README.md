@@ -61,7 +61,7 @@ const keyboard = new DrawKeyboard({
 
   // Key dimensions
   keyWidth?: number,               // Width of white keys (default: 15)
-  keyHeight?: number,              // Height of keys (default: 100)
+  keyHeight?: number,              // Height of keys (default: 80)
 
   // Note range
   baseNote?: number | string,      // MIDI (e.g., 60) or note name (e.g., 'C4')
@@ -81,8 +81,9 @@ const keyboard = new DrawKeyboard({
     modulation?: boolean,
   },
 
-  // QWERTY input
-  qwertyLayout?: 'none' | 'singleRow' | 'doubleRow',
+  // QWERTY input (global; layout-independent using KeyboardEvent.code)
+  qwertyLayout?: 'none' | 'singleRow' | 'singleRowExtended' | 'doubleRow' | 'doubleRowExtended',
+  qwertyBaseNote?: number | string, // Base note for mapping (default: 'C4')
 
   // Event callbacks
   onMidi?: (message: [number, number, number?]) => void,
@@ -116,6 +117,8 @@ keyboard.setBaseNote(48); // Start from C2
 keyboard.setBaseNoteName('C3'); // Start from C3 (string)
 keyboard.setVelocity(80);
 keyboard.setHighlightColor('#ff6b6b');
+keyboard.setQwertyLayout('doubleRowExtended');
+keyboard.setQwertyBase('D#3');
 ```
 
 ### Utility Methods
@@ -129,6 +132,10 @@ keyboard.resetModulationAndPitchBend();
 
 // Clean up
 keyboard.destroy();
+
+// Overlays
+keyboard.setNoteColor(60, '#ff6b6b'); // Color middle C persistently
+keyboard.setNoteLabel(60, 'C4', '#000'); // Add a label to middle C
 ```
 
 ## Touch Gestures
@@ -253,12 +260,16 @@ npm test
 
 ## Keyboard Input
 
-Enable QWERTY input:
+Enable QWERTY input (global, layout-independent):
 
 ```ts
 new DrawKeyboard({ qwertyLayout: 'singleRow' });
-// or
+new DrawKeyboard({ qwertyLayout: 'singleRowExtended' }); // adds ` . /
 new DrawKeyboard({ qwertyLayout: 'doubleRow' });
+new DrawKeyboard({ qwertyLayout: 'doubleRowExtended' }); // adds - = ; ` and . /
+
+// Set the typing base note (default C4)
+new DrawKeyboard({ qwertyLayout: 'singleRow', qwertyBaseNote: 'C4' });
 ```
 
 ## Built Files

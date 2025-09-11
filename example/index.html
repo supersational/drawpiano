@@ -352,13 +352,19 @@
               <label>QWERTY Layout</label>
               <select id="qwertySelect">
                 <option value="none">None</option>
-                <option value="singleRow">Single row (z..,)</option>
+                <option value="singleRow" selected>Single row (z..,)</option>
+                <option value="singleRowExtended">Single row + `./</option>
                 <option value="doubleRow">Double row (q..u + z..,)</option>
+                <option value="doubleRowExtended">Double row + -=;`/.</option>
               </select>
             </div>
+            <div class="control">
+              <label>QWERTY Base (name):</label>
+              <input id="qwertyBase" type="text" placeholder="C4" value="C4" />
+            </div>
             <div class="info-chips">
-              <span class="chip">Focus canvas and type</span>
-              <span class="chip">Esc/blur to stop</span>
+              <span class="chip">Type anywhere to play</span>
+              <span class="chip">Edit QWERTY base to shift mapping</span>
             </div>
           </div>
 
@@ -499,6 +505,7 @@ keyboard.addEventListener('controlChange', (e) => {
         baseNoteName: document.getElementById('baseNoteName'),
         showOctaveLabels: document.getElementById('showOctaveLabels'),
         qwertySelect: document.getElementById('qwertySelect'),
+  qwertyBase: document.getElementById('qwertyBase'),
         gestPitchBend: document.getElementById('gestPitchBend'),
         gestModulation: document.getElementById('gestModulation'),
 
@@ -583,6 +590,12 @@ keyboard.addEventListener('controlChange', (e) => {
         keyboard.setQwertyLayout(layout);
       });
 
+      // QWERTY base note (name)
+      controls.qwertyBase.addEventListener('change', () => {
+        const name = controls.qwertyBase.value || 'C4';
+        keyboard.setQwertyBase(name);
+      });
+
       // Gestures toggles
       function updateGestures() {
         keyboard.setGestures({
@@ -593,6 +606,14 @@ keyboard.addEventListener('controlChange', (e) => {
       controls.gestPitchBend.addEventListener('change', updateGestures);
       controls.gestModulation.addEventListener('change', updateGestures);
       updateGestures();
+
+      // Initialize QWERTY input from UI defaults so typing works immediately
+      if (controls.qwertySelect) {
+        keyboard.setQwertyLayout(controls.qwertySelect.value);
+      }
+      if (controls.qwertyBase) {
+        keyboard.setQwertyBase(controls.qwertyBase.value || 'C4');
+      }
 
       // Demo: Play a chord programmatically
       let chordTimeout;

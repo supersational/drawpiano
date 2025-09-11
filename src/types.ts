@@ -49,7 +49,10 @@ export interface DrawKeyboardOptions {
   };
 
   /** QWERTY keyboard layout */
-  qwertyLayout?: 'none' | 'singleRow' | 'doubleRow';
+  qwertyLayout?: 'none' | 'singleRow' | 'singleRowExtended' | 'doubleRow' | 'doubleRowExtended';
+
+  /** QWERTY mapping base note (number or name like 'C4'). Default: 'C4' */
+  qwertyBaseNote?: number | string;
 }
 
 /**

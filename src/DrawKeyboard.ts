@@ -7,6 +7,68 @@ import {
 } from './types.js';
 import { mod, clamp } from './utils.js';
 
+// Preset QWERTY maps (KeyboardEvent.code -> semitone offset from C)
+// NOTE: Offsets are applied relative to C of the octave from qwertyBase.
+// Fill in or adjust as desired; runtime override available via setQwertyMap().
+const QWERTY_PRESETS: Record<string, Record<string, number>> = {
+  // Chromatic ladder on bottom row (interleaving S/D/G/H/J for sharps)
+  singleRow: {
+    KeyZ: 0, KeyS: 1, KeyX: 2, KeyD: 3, KeyC: 4, KeyV: 5,
+    KeyG: 6, KeyB: 7, KeyH: 8, KeyN: 9, KeyJ: 10, KeyM: 11,
+    Comma: 12, KeyL: 13, Period: 14, Semicolon: 15, Slash: 16,
+  },
+  // Same as singleRow plus Backquote as anchor C
+  singleRowExtended: {
+  Backquote: 0,
+  KeyA: 1,
+  KeyZ: 2,
+  KeyS: 3,
+  KeyX: 4,
+  KeyC: 5,
+  KeyF: 6,
+  KeyV: 7,
+  KeyG: 8,
+  KeyB: 9,
+  KeyH: 10,
+  KeyN: 11,
+  KeyM: 12,
+  KeyK: 13,
+  Comma: 14,
+  KeyL: 15,
+  Period: 16,
+  Slash: 17,
+  Quote: 18,
+  },
+  // Whites on bottom row, blacks on number keys between QWERTY letters (minimal seed; extend as needed)
+  doubleRow: {
+  // Base (copied from singleRowExtended ascending semitone ladder)
+  Backquote: 0,
+  KeyA: 1, KeyZ: 2, KeyS: 3, KeyX: 4, KeyC: 5, KeyF: 6, KeyV: 7,
+  KeyG: 8, KeyB: 9, KeyH: 10, KeyN: 11, KeyM: 12, KeyK: 13,
+  Comma: 14, KeyL: 15, Period: 16, Slash: 17, Quote: 18,
+  // Upper row whites (qwertyuiop[] mapped to natural note pattern starting at C one octave up)
+  // Updated second-row whites starting at offset 17 (Q) ascending, skipping black offsets
+  KeyQ: 17, KeyW: 19, KeyE: 21, KeyR: 23, KeyT: 24, KeyY: 26, KeyU: 28,
+  KeyI: 29, KeyO: 31, KeyP: 33, BracketLeft: 35, BracketRight: 36,
+  // Upper row blacks using digits (start on F# one octave up: 18) sequence 2346790-
+  Digit2: 18, Digit3: 20, Digit4: 22, Digit6: 25, Digit7: 27, Digit9: 30, Digit0: 32, Minus: 34,
+  },
+  // Extended map seeded with a broad layout (fill/modify to taste)
+  doubleRowExtended: {
+  // Same as doubleRow plus a few extra continuation black/white slots if desired
+  Backquote: 0,
+  KeyA: 1, KeyZ: 2, KeyS: 3, KeyX: 4, KeyC: 5, KeyF: 6, KeyV: 7,
+  KeyG: 8, KeyB: 9, KeyH: 10, KeyN: 11, KeyM: 12, KeyK: 13,
+  Comma: 14, KeyL: 15, Period: 16, Slash: 17, Quote: 18,
+  // Updated second-row whites starting at offset 17 (Q) ascending, skipping black offsets
+  KeyQ: 17, KeyW: 19, KeyE: 21, KeyR: 23, KeyT: 24, KeyY: 26, KeyU: 28,
+  KeyI: 29, KeyO: 31, KeyP: 33, BracketLeft: 35, BracketRight: 36,
+  Digit2: 18, Digit3: 20, Digit4: 22, Digit6: 25, Digit7: 27, Digit9: 30, Digit0: 32, Minus: 34,
+  // Optional additional blacks continuing upward (uncomment / adjust as needed)
+  // Equal: 36,
+  },
+};
+
 /**
  * A touch-enabled virtual piano keyboard with MIDI output
  *
@@ -40,6 +102,9 @@ export class DrawKeyboard extends EventTarget {
     NonNullable<DrawKeyboardOptions['gestures']>
   >;
   private qwertyLayout: NonNullable<DrawKeyboardOptions['qwertyLayout']> = 'none';
+  private qwertyBase: number = 60;
+  // Optional custom QWERTY mapping: code -> semitone offset from C of selected octave
+  private qwertyCustomMap: Record<string, number> | null = null;
 
   // Internal rendering state
   private devicePixelRatio: number;
@@ -48,6 +113,9 @@ export class DrawKeyboard extends EventTarget {
   private visibleWhiteKeys = 34;
   private renderQueue: Array<[number, string, boolean]> = [];
   private activeTouches: Record<number, TouchState> = {};
+  // Overlays
+  private coloredNotes: Map<number, string> = new Map();
+  private noteLabels: Map<number, { text: string; color?: string }> = new Map();
 
   // Callbacks
   private callbacks: Required<MIDICallbacks>;
@@ -93,7 +161,8 @@ export class DrawKeyboard extends EventTarget {
         modulation: options.gestures.modulation ?? true,
       };
     }
-    this.qwertyLayout = options.qwertyLayout ?? 'none';
+  this.qwertyLayout = options.qwertyLayout ?? 'none';
+  this.qwertyBase = this.parseBaseNote(options.qwertyBaseNote ?? 'C4');
 
     // Setup callbacks
     this.callbacks = {
@@ -119,13 +188,51 @@ export class DrawKeyboard extends EventTarget {
   this.canvas.addEventListener('pointerup', this.onPointerUp);
   this.canvas.addEventListener('pointercancel', this.onPointerUp);
   this.canvas.addEventListener('pointermove', this.onPointerMove);
-  // Keyboard (QWERTY)
-  this.canvas.addEventListener('keydown', this.onKeyDown);
-  this.canvas.addEventListener('keyup', this.onKeyUp);
+  // Keyboard (QWERTY) — listen globally so canvas focus isn't required
+  window.addEventListener('keydown', this.onKeyDown);
+  window.addEventListener('keyup', this.onKeyUp);
 
     // Initialize
     this.resize();
     this.startAnimationLoop();
+
+    // Overlay persistent colored notes
+    if (this.coloredNotes.size) {
+      for (const [note, color] of this.coloredNotes) {
+        this.drawKey(note - this.startingNote, color, true);
+      }
+    }
+
+    // Overlay note labels
+    if (this.noteLabels.size) {
+      for (const [note, { text, color }] of this.noteLabels) {
+        this.drawNoteLabel(note, text, color);
+      }
+    }
+  }
+
+  private drawNoteLabel(noteNumber: number, text: string, color?: string): void {
+    if (!text) return;
+    const rect = this.getNoteRect(noteNumber);
+    if (!rect) return;
+    const rel = noteNumber - this.startingNote;
+    const chromaticNote = mod(rel + 1200, 12);
+    const isBlack = PIANO_KEYS.black.includes(chromaticNote as any);
+  const ctx = this.ctx;
+  ctx.save();
+  const small = rect.width < 15;
+    const fontSize = small ? 7 : 10;
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = color || (isBlack ? '#fff' : '#111');
+    ctx.textBaseline = 'middle';
+    if (small) {
+      ctx.textAlign = 'left';
+      ctx.fillText(text, rect.x + 2, rect.y + rect.height * 0.6, Math.max(4, rect.width - 4));
+    } else {
+      ctx.textAlign = 'center';
+      ctx.fillText(text, rect.x + rect.width / 2, rect.y + rect.height / 2, rect.width - 4);
+    }
+    ctx.restore();
   }
 
   // Public API methods
@@ -162,6 +269,40 @@ export class DrawKeyboard extends EventTarget {
   /** Set QWERTY input layout */
   setQwertyLayout(layout: NonNullable<DrawKeyboardOptions['qwertyLayout']>): void {
     this.qwertyLayout = layout;
+  }
+
+  /** Set QWERTY mapping base note (number or note name like 'C4') */
+  setQwertyBase(note: number | string): void {
+    this.qwertyBase = clamp(this.parseBaseNote(note as any), 0, 127);
+  }
+
+  /**
+   * Provide a custom QWERTY mapping of KeyboardEvent.code -> semitone offset from C.
+   * Offsets are applied relative to C in the octave from qwertyBaseNote.
+   * Pass null to clear.
+   */
+  setQwertyMap(map: Record<string, number> | null): void {
+    this.qwertyCustomMap = map;
+  }
+
+  /** Persistently color a note (pass null/undefined to clear) */
+  setNoteColor(noteNumber: number, color?: string | null): void {
+    if (noteNumber < 0 || noteNumber > 127) return;
+    if (color) this.coloredNotes.set(noteNumber, color);
+    else this.coloredNotes.delete(noteNumber);
+    this.redrawAllKeys();
+  }
+
+  /** Add/update a text label on a note (empty/undefined text clears) */
+  setNoteLabel(noteNumber: number, text?: string, color?: string): void {
+    if (noteNumber < 0 || noteNumber > 127) return;
+    if (text && text.length) {
+      const entry: { text: string; color?: string } = { text };
+      if (typeof color === 'string') entry.color = color;
+      this.noteLabels.set(noteNumber, entry);
+    }
+    else this.noteLabels.delete(noteNumber);
+    this.redrawAllKeys();
   }
 
   /**
@@ -220,6 +361,11 @@ export class DrawKeyboard extends EventTarget {
   release(noteNumber: number, sendMidi = false): void {
     if (noteNumber < 0 || noteNumber > 127) return;
     this.enqueueKeyDraw([noteNumber - this.startingNote, this.highlightColor, false]);
+    // If a persistent color is set for this note, reapply it
+    const persistent = this.coloredNotes.get(noteNumber);
+    if (persistent) {
+      this.enqueueKeyDraw([noteNumber - this.startingNote, persistent, true]);
+    }
     if (sendMidi) {
       this.sendMidiMessage([0x80, noteNumber, 0]);
     }
@@ -286,8 +432,8 @@ export class DrawKeyboard extends EventTarget {
   this.canvas.removeEventListener('pointerup', this.onPointerUp);
   this.canvas.removeEventListener('pointercancel', this.onPointerUp);
   this.canvas.removeEventListener('pointermove', this.onPointerMove);
-  this.canvas.removeEventListener('keydown', this.onKeyDown);
-  this.canvas.removeEventListener('keyup', this.onKeyUp);
+  window.removeEventListener('keydown', this.onKeyDown);
+  window.removeEventListener('keyup', this.onKeyUp);
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
@@ -391,13 +537,26 @@ export class DrawKeyboard extends EventTarget {
     const ctx = this.ctx;
     const keyWidth = this.whiteKeyWidth;
     const keyHeight = this.whiteKeyHeight;
+    const small = keyWidth < 15;
+    const fontSize = small ? 7 : 10;
     ctx.fillStyle = '#333';
-    ctx.font = '9px Arial';
-    ctx.fillText(
-      'C' + octaveNumber,
-      this.canvasMarginX + octaveNumber * keyWidth * 7 + 2,
-      this.canvasMarginY + keyHeight * 0.9
-    );
+    ctx.font = `${fontSize}px Arial`;
+    ctx.textBaseline = 'middle';
+    if (small) {
+      ctx.textAlign = 'left';
+      ctx.fillText(
+        'C' + octaveNumber,
+        this.canvasMarginX + octaveNumber * keyWidth * 7 + 2,
+        this.canvasMarginY + keyHeight * 0.9
+      );
+    } else {
+      ctx.textAlign = 'center';
+      ctx.fillText(
+        'C' + octaveNumber,
+        this.canvasMarginX + octaveNumber * keyWidth * 7 + keyWidth / 2,
+        this.canvasMarginY + keyHeight * 0.85
+      );
+    }
   }
 
   private enqueueKeyDraw(drawArgs: [number, string, boolean]): void {
@@ -474,6 +633,11 @@ export class DrawKeyboard extends EventTarget {
         this.drawOctaveLabel(octaveNumber);
       }
     }
+
+  // Draw label if present for this note
+  const noteNumber = relativeNoteIndex + this.startingNote;
+  const label = this.noteLabels.get(noteNumber);
+  if (label) this.drawNoteLabel(noteNumber, label.text, label.color);
   }
 
   private coordsToNote(canvasX: number, canvasY: number): number {
@@ -640,22 +804,31 @@ export class DrawKeyboard extends EventTarget {
 
   // QWERTY keyboard support
   private onKeyDown = (e: KeyboardEvent): void => {
+    const target = e.target as HTMLElement | null;
+    if (target && (target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName))) {
+      return;
+    }
+    if (e.repeat) return;
     if (this.qwertyLayout === 'none') return;
     const map = this.getQwertyMap();
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    if (map[key] !== undefined) {
-      const note = map[key];
+    const code = e.code;
+    if (map[code] !== undefined) {
+      const note = map[code];
       this.sendMidiMessage([0x90, note, this.noteVelocity]);
       this.press(note);
       e.preventDefault();
     }
   };
   private onKeyUp = (e: KeyboardEvent): void => {
+    const target = e.target as HTMLElement | null;
+    if (target && (target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName))) {
+      return;
+    }
     if (this.qwertyLayout === 'none') return;
     const map = this.getQwertyMap();
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    if (map[key] !== undefined) {
-      const note = map[key];
+    const code = e.code;
+    if (map[code] !== undefined) {
+      const note = map[code];
       this.sendMidiMessage([0x80, note, 0]);
       this.release(note);
       e.preventDefault();
@@ -663,28 +836,91 @@ export class DrawKeyboard extends EventTarget {
   };
 
   private getQwertyMap(): Record<string, number> {
-    const base = this.startingNote;
-    if (this.qwertyLayout === 'singleRow') {
-      // z s x d c v g b h n j m ,
+    const base = this.qwertyBase;
+    const notes: Record<string, number> = {};
+    // Helper: anchor to C of the configured octave
+    const baseC = 12 * Math.floor(base / 12);
+
+    // If a custom map is defined, apply it directly (extended-style semantics)
+    if (this.qwertyCustomMap && (this.qwertyLayout === 'singleRowExtended' || this.qwertyLayout === 'doubleRowExtended')) {
+      for (const code in this.qwertyCustomMap) {
+        const offset = this.qwertyCustomMap[code]!;
+        notes[code] = clamp(baseC + offset, 0, 127);
+      }
+      return notes;
+    }
+
+    // If a preset exists for this layout, apply it (anchored to baseC)
+    const preset = QWERTY_PRESETS[this.qwertyLayout];
+    if (preset && Object.keys(preset).length) {
+      for (const code in preset) {
+        const offset = preset[code]!;
+        notes[code] = clamp(baseC + offset, 0, 127);
+      }
+      return notes;
+    }
+  if (this.qwertyLayout === 'singleRow' || this.qwertyLayout === 'singleRowExtended') {
+      // Interleaved single-row mapping including black keys using nearby home-row codes
+      // Sequence covers 13 semitones starting at base: Z S X D C V G B H N J M ,
       const seq = [
-        'z', 's', 'x', 'd', 'c', 'v', 'g', 'b', 'h', 'n', 'j', 'm', ',',
+        'KeyZ','KeyS','KeyX','KeyD','KeyC','KeyV','KeyG','KeyB','KeyH','KeyN','KeyJ','KeyM','Comma'
       ];
-      const notes: Record<string, number> = {};
-      for (let i = 0; i < seq.length; i++) notes[seq[i]] = base + i;
+      const ext = ['Period','Slash']; // continue upward by semitone
+      const row = this.qwertyLayout === 'singleRowExtended' ? seq.concat(ext) : seq;
+      for (let i = 0; i < row.length; i++) notes[row[i]] = clamp(base + i, 0, 127);
+      // In extended single row, also make Backquote a convenient C of selected octave
+      if (this.qwertyLayout === 'singleRowExtended') {
+        notes['Backquote'] = clamp(baseC + 0, 0, 127);
+      }
       return notes;
     }
-    if (this.qwertyLayout === 'doubleRow') {
-      // bottom row: z s x d c v g b h n j m ,
-      // top row:    q 2 w 3 e r 5 t 6 y 7 u
-      const bottom = ['z','s','x','d','c','v','g','b','h','n','j','m',','];
-      const top =    ['q','2','w','3','e','r','5','t','6','y','7','u'];
-      const notes: Record<string, number> = {};
-      for (let i = 0; i < bottom.length; i++) notes[bottom[i]] = base + i;
-      for (let i = 0; i < top.length; i++) notes[top[i]] = base + 12 + i;
+    if (this.qwertyLayout === 'doubleRow' || this.qwertyLayout === 'doubleRowExtended') {
+      // Whites on bottom (diatonic), blacks on upper keys between appropriate whites
+      const bottomWhites = ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash'];
+      // Q-row and number keys for interstitial sharps/flats: Q 2 W 3 E | R 5 T 6 Y 7 U ...
+      const topBlacksBase = [
+        'KeyQ','Digit2','KeyW','Digit3','KeyE',
+        'KeyR','Digit5','KeyT','Digit6','KeyY','Digit7','KeyU'
+      ];
+  const topBlacksExt = ['Minus','Equal','Semicolon'];
+      const topBlacks = this.qwertyLayout === 'doubleRowExtended' ? topBlacksBase.concat(topBlacksExt) : topBlacksBase;
+
+      // Map whites sequentially to natural notes starting from aligned base
+      const WHITE = [0,2,4,5,7,9,11];
+      const isBlack = (n:number)=>[1,3,6,8,10].includes((n%12+12)%12);
+      let n = base;
+      while (isBlack(n)) n--; // align to nearest lower white
+      let wIdx = WHITE.indexOf(((n%12)+12)%12);
+      let oct = Math.floor(n/12);
+      const whites: number[] = [];
+      for (let i=0;i<bottomWhites.length;i++){
+        const chroma = WHITE[wIdx];
+        const note = oct*12+chroma;
+        notes[bottomWhites[i]] = note;
+        whites.push(note);
+        wIdx++; if (wIdx===7){wIdx=0; oct++;}
+      }
+      // Insert blacks between white neighbors separated by 2 semitones
+      let bi=0;
+      for (let i=0;i<whites.length-1 && bi<topBlacks.length;i++){
+        const a = whites[i];
+        const b = whites[i+1];
+        if (((b-a)+12)%12===2){
+          notes[topBlacks[bi++]] = a+1;
+        }
+      }
+      // In extended mode, also make Backquote a convenient C of selected octave
+      if (this.qwertyLayout === 'doubleRowExtended') {
+        notes['Backquote'] = clamp(baseC + 0, 0, 127);
+      }
       return notes;
     }
-    return {};
+    return notes;
   }
+
+  // Static-like mapping for extended layout: KeyboardEvent.code -> semitone offset from C
+  // Covers common US and ISO variants and duplicates where practical for ergonomics
+  // Removed unused extended offsets helper after adding setQwertyMap API
 
   private parseBaseNote(input: number | string): number {
     if (typeof input === 'number') return Math.floor(input);
