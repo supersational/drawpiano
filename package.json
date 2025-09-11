@@ -46,12 +46,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/<GITHUB_USER_OR_ORG>/<REPO>.git"
+    "url": "git+https://github.com/supersational/drawpiano.git"
   },
   "bugs": {
-    "url": "https://github.com/<GITHUB_USER_OR_ORG>/<REPO>/issues"
+    "url": "https://github.com/supersational/drawpiano/issues"
   },
-  "homepage": "https://github.com/<GITHUB_USER_OR_ORG>/<REPO>#readme",
+  "homepage": "https://github.com/supersational/drawpiano#readme",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
