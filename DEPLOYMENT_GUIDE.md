@@ -1,27 +1,29 @@
 # Deployment Guide
 
-Complete guide for publishing and deploying the DrawKeyboard library.
+Complete guide for publishing and deploying the drawpiano library.
 
 ## Pre-Publishing Checklist
 
 1. **Update package.json**
+
    ```bash
    # Update version
    npm version patch|minor|major
-   
+
    # Verify package details
    npm run build
    npm run size
    ```
 
 2. **Test builds locally**
+
    ```bash
    npm run build
    ls -la dist/
-   
+
    # Test UMD build
    open test-umd.html
-   
+
    # Test dev server
    npm run dev
    ```
@@ -34,6 +36,7 @@ Complete guide for publishing and deploying the DrawKeyboard library.
 ## NPM Publishing
 
 ### First-time Setup
+
 ```bash
 # Login to npm
 npm login
@@ -42,10 +45,11 @@ npm login
 npm whoami
 
 # Check package name availability
-npm view drawkeyboard
+npm view drawpiano
 ```
 
 ### Publishing Process
+
 ```bash
 # Clean build
 npm run clean
@@ -57,8 +61,8 @@ npm pack --dry-run
 # Test installation locally
 cd /tmp
 npm init -y
-npm install /path/to/drawkeyboard-lib/drawkeyboard-1.0.0.tgz
-node -e "console.log(require('drawkeyboard'))"
+npm install /path/to/drawpiano-lib/drawpiano-1.0.0.tgz
+node -e "console.log(require('drawpiano'))"
 
 # Publish to npm
 npm publish
@@ -68,20 +72,22 @@ npm publish --tag beta
 ```
 
 ### Post-publish Verification
+
 ```bash
 # Check it's live
-npm view drawkeyboard
+npm view drawpiano
 
 # Test CDN links work
-curl -I https://unpkg.com/drawkeyboard/dist/umd/drawkeyboard.min.js
-curl -I https://cdn.jsdelivr.net/npm/drawkeyboard/dist/umd/drawkeyboard.min.js
+curl -I https://unpkg.com/drawpiano/dist/umd/drawpiano.min.js
+curl -I https://cdn.jsdelivr.net/npm/drawpiano/dist/umd/drawpiano.min.js
 ```
 
 ## Version Management
 
 ### Semantic Versioning
+
 - **Patch** (1.0.1): Bug fixes, no breaking changes
-- **Minor** (1.1.0): New features, backwards compatible  
+- **Minor** (1.1.0): New features, backwards compatible
 - **Major** (2.0.0): Breaking changes
 
 ```bash
@@ -95,12 +101,13 @@ npm version major   # 1.0.0 → 2.0.0
 ```
 
 ### Pre-release Versions
+
 ```bash
 npm version prerelease --preid=beta  # 1.0.0 → 1.0.1-beta.0
 npm publish --tag beta
 
 # Install pre-release
-npm install drawkeyboard@beta
+npm install drawpiano@beta
 ```
 
 ## CDN Distribution
@@ -108,17 +115,20 @@ npm install drawkeyboard@beta
 Your package automatically works on CDNs after npm publish:
 
 ### UNPKG
-- Latest: `https://unpkg.com/drawkeyboard/dist/umd/drawkeyboard.min.js`
-- Specific: `https://unpkg.com/drawkeyboard@1.0.0/dist/umd/drawkeyboard.min.js`
-- Browse: `https://unpkg.com/browse/drawkeyboard/`
+
+- Latest: `https://unpkg.com/drawpiano/dist/umd/drawpiano.min.js`
+- Specific: `https://unpkg.com/drawpiano@1.0.0/dist/umd/drawpiano.min.js`
+- Browse: `https://unpkg.com/browse/drawpiano/`
 
 ### jsDelivr
-- Latest: `https://cdn.jsdelivr.net/npm/drawkeyboard/dist/umd/drawkeyboard.min.js`
-- Specific: `https://cdn.jsdelivr.net/npm/drawkeyboard@1.0.0/dist/umd/drawkeyboard.min.js`
+
+- Latest: `https://cdn.jsdelivr.net/npm/drawpiano/dist/umd/drawpiano.min.js`
+- Specific: `https://cdn.jsdelivr.net/npm/drawpiano@1.0.0/dist/umd/drawpiano.min.js`
 
 ## GitHub Integration
 
 ### Releases
+
 ```bash
 # Create git tag for releases
 git tag v1.0.0
@@ -129,7 +139,9 @@ git push origin v1.0.0
 ```
 
 ### GitHub Actions (Optional)
+
 Create `.github/workflows/publish.yml`:
+
 ```yaml
 name: Publish Package
 on:
@@ -154,11 +166,12 @@ jobs:
 ## Development Workflow
 
 ### Local Development
+
 ```bash
 # Link for local testing
 npm link
 cd /path/to/test-project
-npm link drawkeyboard
+npm link drawpiano
 
 # Start dev server
 npm run dev
@@ -168,30 +181,34 @@ npm run build -- --watch
 ```
 
 ### Testing in Other Projects
+
 ```bash
 # Pack without publishing
 npm pack
-# Creates drawkeyboard-1.0.0.tgz
+# Creates drawpiano-1.0.0.tgz
 
 # Test in another project
-cd /path/to/test-project  
-npm install /path/to/drawkeyboard-1.0.0.tgz
+cd /path/to/test-project
+npm install /path/to/drawpiano-1.0.0.tgz
 ```
 
 ## Monitoring & Analytics
 
 ### NPM Stats
-- View downloads: https://npmcharts.com/compare/drawkeyboard
-- Package info: https://www.npmjs.com/package/drawkeyboard
-- Bundle analysis: https://bundlephobia.com/package/drawkeyboard
+
+- View downloads: https://npmcharts.com/compare/drawpiano
+- Package info: https://www.npmjs.com/package/drawpiano
+- Bundle analysis: https://bundlephobia.com/package/drawpiano
 
 ### GitHub Stats
+
 - Releases page: Track downloads of release assets
 - Insights: View traffic, clones, popular content
 
 ## Maintenance
 
 ### Regular Updates
+
 ```bash
 # Update dependencies
 npm update
@@ -203,6 +220,7 @@ npm run dev
 ```
 
 ### Security
+
 ```bash
 # Check for vulnerabilities
 npm audit
@@ -212,12 +230,13 @@ npm audit fix
 ```
 
 ### Cleanup
+
 ```bash
 # Remove old versions (if needed)
-npm unpublish drawkeyboard@1.0.0
+npm unpublish drawpiano@1.0.0
 
 # Deprecate versions
-npm deprecate drawkeyboard@1.0.0 "Please upgrade to 1.0.1"
+npm deprecate drawpiano@1.0.0 "Please upgrade to 1.0.1"
 ```
 
 ## Troubleshooting
@@ -225,6 +244,7 @@ npm deprecate drawkeyboard@1.0.0 "Please upgrade to 1.0.1"
 ### Common Issues
 
 **Build fails:**
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
@@ -232,18 +252,20 @@ npm run build
 ```
 
 **Publish fails:**
+
 ```bash
 # Check you're logged in
 npm whoami
 
 # Check package name isn't taken
-npm view drawkeyboard
+npm view drawpiano
 
 # Try with --dry-run first
 npm publish --dry-run
 ```
 
 **CDN not updating:**
+
 - Wait 5-10 minutes for propagation
 - Try different CDN (unpkg vs jsdelivr)
 - Check version number is correct

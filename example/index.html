@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DrawKeyboard Library Demo</title>
+  <title>DrawPiano Library Demo</title>
     <style>
       :root {
         --bg: #0e1116;
@@ -291,7 +291,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>DrawKeyboard</h1>
+  <h1>DrawPiano</h1>
       <p class="subtitle">A touch-enabled virtual piano keyboard with MIDI output</p>
 
       <div class="panel">
@@ -397,7 +397,7 @@
           <div class="example-card">
             <h3>Basic Setup</h3>
             <p>Create a simple keyboard with default settings</p>
-            <pre><code>import { DrawKeyboard } from 'drawkeyboard';
+            <pre><code>import { DrawKeyboard } from 'drawpiano';
 
 const keyboard = new DrawKeyboard({
   container: document.getElementById('keyboard'),
@@ -463,7 +463,7 @@ keyboard.addEventListener('controlChange', (e) => {
 
     <script type="module">
       // For development, import from source
-      // In production, you would use: import { DrawKeyboard } from 'drawkeyboard';
+  // In production, you would use: import { DrawKeyboard } from 'drawpiano';
       import { DrawKeyboard } from '../src/index.ts';
 
       // Create keyboard instance

@@ -1,19 +1,17 @@
-# DrawKeyboard Library - Usage Examples
-
 ## 🎹 Quick Start
 
 ### Via npm/yarn
 
 ```bash
-npm install drawkeyboard
+npm install drawpiano
 # or
-yarn add drawkeyboard
+yarn add drawpiano
 ```
 
 ### Via CDN
 
 ```html
-<script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
+  <script src="https://unpkg.com/drawpiano@latest/dist/umd/drawpiano.min.js"></script>
 ```
 
 ## 📦 Usage Examples
@@ -21,7 +19,7 @@ yarn add drawkeyboard
 ### 1. ES Modules (Modern)
 
 ```javascript
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 const keyboard = new DrawKeyboard({
   container: document.getElementById('keyboard'),
@@ -33,7 +31,7 @@ const keyboard = new DrawKeyboard({
 ### 2. CommonJS (Node.js)
 
 ```javascript
-const { DrawKeyboard } = require('drawkeyboard');
+const { DrawKeyboard } = require('drawpiano');
 
 const keyboard = new DrawKeyboard({
   container: document.getElementById('keyboard'),
@@ -51,7 +49,7 @@ const keyboard = new DrawKeyboard({
   <body>
     <div id="keyboard"></div>
 
-    <script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
+  <script src="https://unpkg.com/drawpiano@latest/dist/umd/drawpiano.min.js"></script>
     <script>
       const keyboard = new DrawKeyboard({
         container: document.getElementById('keyboard'),
@@ -65,11 +63,10 @@ const keyboard = new DrawKeyboard({
   </body>
 </html>
 ```
-
 ### 4. TypeScript
 
 ```typescript
-import { DrawKeyboard, DrawKeyboardOptions } from 'drawkeyboard';
+import { DrawKeyboard, DrawKeyboardOptions } from 'drawpiano';
 
 const options: DrawKeyboardOptions = {
   container: document.getElementById('keyboard')!,
@@ -83,13 +80,12 @@ const options: DrawKeyboardOptions = {
 
 const keyboard = new DrawKeyboard(options);
 ```
-
 ## 🎛️ Advanced Examples
 
 ### With Web MIDI API
 
 ```javascript
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 navigator.requestMIDIAccess().then((midiAccess) => {
   const midiOutput = Array.from(midiAccess.outputs.values())[0];
@@ -100,7 +96,6 @@ navigator.requestMIDIAccess().then((midiAccess) => {
       if (midiOutput) {
         midiOutput.send(message);
       }
-    },
   });
 });
 ```
@@ -108,7 +103,7 @@ navigator.requestMIDIAccess().then((midiAccess) => {
 ### With Web Audio API
 
 ```javascript
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 const audioContext = new AudioContext();
 const activeNotes = new Map();
@@ -133,9 +128,8 @@ const keyboard = new DrawKeyboard({
   onNoteOff: (note) => {
     const noteData = activeNotes.get(note);
     if (noteData) {
-      noteData.gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-      noteData.oscillator.stop(audioContext.currentTime + 0.1);
-      activeNotes.delete(note);
+  noteData.gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+  activeNotes.delete(note);
     }
   },
 });
@@ -145,7 +139,7 @@ const keyboard = new DrawKeyboard({
 
 ```jsx
 import React, { useEffect, useRef } from 'react';
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 function PianoKeyboard({ onNotePlay }) {
   const containerRef = useRef(null);
@@ -168,7 +162,6 @@ function PianoKeyboard({ onNotePlay }) {
 
   return <div ref={containerRef} style={{ width: '100%' }} />;
 }
-
 export default PianoKeyboard;
 ```
 
@@ -181,7 +174,7 @@ export default PianoKeyboard;
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 const keyboardContainer = ref(null);
 let keyboard = null;
@@ -200,16 +193,13 @@ onUnmounted(() => {
   keyboard?.destroy();
 });
 </script>
-```
 
 ## 🎯 Built Files
 
-The library provides multiple build formats:
-
 - **ESM**: `dist/esm/index.js` - For modern bundlers
 - **CommonJS**: `dist/cjs/index.js` - For Node.js and older bundlers
-- **UMD**: `dist/umd/drawkeyboard.js` - For browser globals
-- **UMD Minified**: `dist/umd/drawkeyboard.min.js` - Production ready
+- **UMD**: `dist/umd/drawpiano.js` - For browser globals
+- **UMD Minified**: `dist/umd/drawpiano.min.js` - Production ready
 - **Types**: `dist/types/index.d.ts` - TypeScript definitions
 
 ## 📏 Bundle Size

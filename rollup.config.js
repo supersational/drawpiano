@@ -24,13 +24,13 @@ export default defineConfig({
     },
     // UMD builds
     {
-      file: 'dist/umd/drawkeyboard.js',
+      file: 'dist/umd/drawpiano.js',
       format: 'umd',
       name: 'DrawKeyboard',
       sourcemap: true,
     },
     {
-      file: 'dist/umd/drawkeyboard.min.js',
+      file: 'dist/umd/drawpiano.min.js',
       format: 'umd',
       name: 'DrawKeyboard',
       sourcemap: true,

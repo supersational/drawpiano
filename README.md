@@ -1,4 +1,4 @@
-# DrawKeyboard
+# DrawPiano
 
 A touch-enabled virtual piano keyboard with MIDI output for web applications.
 
@@ -16,7 +16,7 @@ A touch-enabled virtual piano keyboard with MIDI output for web applications.
 ## Installation
 
 ```bash
-npm install drawkeyboard
+npm install drawpiano
 ```
 
 ## Quick Start
@@ -24,7 +24,7 @@ npm install drawkeyboard
 ### ES Modules
 
 ```javascript
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 const keyboard = new DrawKeyboard({
   container: document.getElementById('keyboard-container'),
@@ -36,13 +36,13 @@ const keyboard = new DrawKeyboard({
 ### CommonJS
 
 ```javascript
-const { DrawKeyboard } = require('drawkeyboard');
+const { DrawKeyboard } = require('drawpiano');
 ```
 
 ### CDN (UMD)
 
 ```html
-<script src="https://unpkg.com/drawkeyboard@latest/dist/umd/drawkeyboard.min.js"></script>
+<script src="https://unpkg.com/drawpiano@latest/dist/umd/drawpiano.min.js"></script>
 <script>
   const keyboard = new DrawKeyboard({
     container: document.body,
@@ -182,7 +182,7 @@ keyboard.addEventListener('midi', (e) => {
 ### Web MIDI API Example
 
 ```javascript
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 // Get MIDI output
 const midiAccess = await navigator.requestMIDIAccess();
@@ -201,7 +201,7 @@ const keyboard = new DrawKeyboard({
 ### Audio Context Integration
 
 ```javascript
-import { DrawKeyboard } from 'drawkeyboard';
+import { DrawKeyboard } from 'drawpiano';
 
 // Simple sine wave synthesizer
 const audioContext = new AudioContext();
@@ -278,8 +278,8 @@ The library ships multiple formats to support different environments:
 
 - ESM: `dist/esm/index.js` (for modern bundlers)
 - CommonJS: `dist/cjs/index.js` (for Node.js and older bundlers)
-- UMD: `dist/umd/drawkeyboard.js` (browser global)
-- UMD Minified: `dist/umd/drawkeyboard.min.js` (production)
+- UMD: `dist/umd/drawpiano.js` (browser global)
+- UMD Minified: `dist/umd/drawpiano.min.js` (production)
 - Types: `dist/types/index.d.ts` (TypeScript definitions)
 
 ## Live Examples
