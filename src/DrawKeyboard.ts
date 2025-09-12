@@ -19,53 +19,53 @@ const QWERTY_PRESETS: Record<string, Record<string, number>> = {
   },
   // Same as singleRow plus Backquote as anchor C
   singleRowExtended: {
-  Backquote: 0,
-  KeyA: 1,
-  KeyZ: 2,
-  KeyS: 3,
-  KeyX: 4,
-  KeyC: 5,
-  KeyF: 6,
-  KeyV: 7,
-  KeyG: 8,
-  KeyB: 9,
-  KeyH: 10,
-  KeyN: 11,
-  KeyM: 12,
-  KeyK: 13,
-  Comma: 14,
-  KeyL: 15,
-  Period: 16,
-  Slash: 17,
-  Quote: 18,
+    Backquote: 0,
+    KeyA: 1,
+    KeyZ: 2,
+    KeyS: 3,
+    KeyX: 4,
+    KeyC: 5,
+    KeyF: 6,
+    KeyV: 7,
+    KeyG: 8,
+    KeyB: 9,
+    KeyH: 10,
+    KeyN: 11,
+    KeyM: 12,
+    KeyK: 13,
+    Comma: 14,
+    KeyL: 15,
+    Period: 16,
+    Slash: 17,
+    Quote: 18,
   },
   // Whites on bottom row, blacks on number keys between QWERTY letters (minimal seed; extend as needed)
   doubleRow: {
-  // Base (copied from singleRowExtended ascending semitone ladder)
-  Backquote: 0,
-  KeyA: 1, KeyZ: 2, KeyS: 3, KeyX: 4, KeyC: 5, KeyF: 6, KeyV: 7,
-  KeyG: 8, KeyB: 9, KeyH: 10, KeyN: 11, KeyM: 12, KeyK: 13,
-  Comma: 14, KeyL: 15, Period: 16, Slash: 17, Quote: 18,
-  // Upper row whites (qwertyuiop[] mapped to natural note pattern starting at C one octave up)
-  // Updated second-row whites starting at offset 17 (Q) ascending, skipping black offsets
-  KeyQ: 17, KeyW: 19, KeyE: 21, KeyR: 23, KeyT: 24, KeyY: 26, KeyU: 28,
-  KeyI: 29, KeyO: 31, KeyP: 33, BracketLeft: 35, BracketRight: 36,
-  // Upper row blacks using digits (start on F# one octave up: 18) sequence 2346790-
-  Digit2: 18, Digit3: 20, Digit4: 22, Digit6: 25, Digit7: 27, Digit9: 30, Digit0: 32, Minus: 34,
+    // Base (copied from singleRowExtended ascending semitone ladder)
+    Backquote: 0,
+    KeyA: 1, KeyZ: 2, KeyS: 3, KeyX: 4, KeyC: 5, KeyF: 6, KeyV: 7,
+    KeyG: 8, KeyB: 9, KeyH: 10, KeyN: 11, KeyM: 12, KeyK: 13,
+    Comma: 14, KeyL: 15, Period: 16, Slash: 17, Quote: 18,
+    // Upper row whites (qwertyuiop[] mapped to natural note pattern starting at C one octave up)
+    // Updated second-row whites starting at offset 17 (Q) ascending, skipping black offsets
+    KeyQ: 17, KeyW: 19, KeyE: 21, KeyR: 23, KeyT: 24, KeyY: 26, KeyU: 28,
+    KeyI: 29, KeyO: 31, KeyP: 33, BracketLeft: 35, BracketRight: 36,
+    // Upper row blacks using digits (start on F# one octave up: 18) sequence 2346790-
+    Digit2: 18, Digit3: 20, Digit4: 22, Digit6: 25, Digit7: 27, Digit9: 30, Digit0: 32, Minus: 34,
   },
   // Extended map seeded with a broad layout (fill/modify to taste)
   doubleRowExtended: {
-  // Same as doubleRow plus a few extra continuation black/white slots if desired
-  Backquote: 0,
-  KeyA: 1, KeyZ: 2, KeyS: 3, KeyX: 4, KeyC: 5, KeyF: 6, KeyV: 7,
-  KeyG: 8, KeyB: 9, KeyH: 10, KeyN: 11, KeyM: 12, KeyK: 13,
-  Comma: 14, KeyL: 15, Period: 16, Slash: 17, Quote: 18,
-  // Updated second-row whites starting at offset 17 (Q) ascending, skipping black offsets
-  KeyQ: 17, KeyW: 19, KeyE: 21, KeyR: 23, KeyT: 24, KeyY: 26, KeyU: 28,
-  KeyI: 29, KeyO: 31, KeyP: 33, BracketLeft: 35, BracketRight: 36,
-  Digit2: 18, Digit3: 20, Digit4: 22, Digit6: 25, Digit7: 27, Digit9: 30, Digit0: 32, Minus: 34,
-  // Optional additional blacks continuing upward (uncomment / adjust as needed)
-  // Equal: 36,
+    // Same as doubleRow plus a few extra continuation black/white slots if desired
+    Backquote: 0,
+    KeyA: 1, KeyZ: 2, KeyS: 3, KeyX: 4, KeyC: 5, KeyF: 6, KeyV: 7,
+    KeyG: 8, KeyB: 9, KeyH: 10, KeyN: 11, KeyM: 12, KeyK: 13,
+    Comma: 14, KeyL: 15, Period: 16, Slash: 17, Quote: 18,
+    // Updated second-row whites starting at offset 17 (Q) ascending, skipping black offsets
+    KeyQ: 17, KeyW: 19, KeyE: 21, KeyR: 23, KeyT: 24, KeyY: 26, KeyU: 28,
+    KeyI: 29, KeyO: 31, KeyP: 33, BracketLeft: 35, BracketRight: 36,
+    Digit2: 18, Digit3: 20, Digit4: 22, Digit6: 25, Digit7: 27, Digit9: 30, Digit0: 32, Minus: 34,
+    // Optional additional blacks continuing upward (uncomment / adjust as needed)
+    // Equal: 36,
   },
 };
 
@@ -145,10 +145,13 @@ export class DrawKeyboard extends EventTarget {
       throw new Error('Could not get 2D rendering context from canvas');
     }
     this.ctx = context;
+    // Prefer crisp pixel rendering via CSS only (no context flags)
+    // Use a widely-supported value; fallback can be adjusted by the host app's CSS
+    this.canvas.style.setProperty('image-rendering', 'crisp-edges');
 
     // Initialize dimensions and settings
     this.whiteKeyWidth = options.keyWidth ?? 15;
-  this.whiteKeyHeight = options.keyHeight ?? 80;
+    this.whiteKeyHeight = options.keyHeight ?? 80;
     this.blackKeyWidth = this.whiteKeyWidth / 2 - 2;
     this.blackKeyHeight = this.whiteKeyHeight * 0.65 - 2;
     this.startingNote = clamp(this.parseBaseNote(options.baseNote ?? 12), 0, 127);
@@ -163,36 +166,36 @@ export class DrawKeyboard extends EventTarget {
         modulation: options.gestures.modulation ?? true,
       };
     }
-  this.qwertyLayout = options.qwertyLayout ?? 'none';
-  this.qwertyBase = this.parseBaseNote(options.qwertyBaseNote ?? 'C4');
+    this.qwertyLayout = options.qwertyLayout ?? 'none';
+    this.qwertyBase = this.parseBaseNote(options.qwertyBaseNote ?? 'C4');
 
     // Setup callbacks
     this.callbacks = {
-      onMidi: options.onMidi || (() => {}),
-      onNoteOn: options.onNoteOn || (() => {}),
-      onNoteOff: options.onNoteOff || (() => {}),
-      onPitchBend: options.onPitchBend || (() => {}),
-      onControlChange: options.onControlChange || (() => {}),
+      onMidi: options.onMidi || (() => { }),
+      onNoteOn: options.onNoteOn || (() => { }),
+      onNoteOff: options.onNoteOff || (() => { }),
+      onPitchBend: options.onPitchBend || (() => { }),
+      onControlChange: options.onControlChange || (() => { }),
     };
 
     // Bind event handlers
     this.handleResize = () => this.resize();
-  // (Touch fallback removed; using Pointer Events)
+    // (Touch fallback removed; using Pointer Events)
 
-  // Setup event listeners (Pointer Events)
-  window.addEventListener('resize', this.handleResize);
-  // Accessibility
-  this.canvas.setAttribute('role', 'application');
-  this.canvas.setAttribute('aria-label', options.ariaLabel || 'Interactive virtual piano keyboard');
-  this.canvas.tabIndex = 0;
-  // Pointer events
-  this.canvas.addEventListener('pointerdown', this.onPointerDown);
-  this.canvas.addEventListener('pointerup', this.onPointerUp);
-  this.canvas.addEventListener('pointercancel', this.onPointerUp);
-  this.canvas.addEventListener('pointermove', this.onPointerMove);
-  // Keyboard (QWERTY) — listen globally so canvas focus isn't required
-  window.addEventListener('keydown', this.onKeyDown);
-  window.addEventListener('keyup', this.onKeyUp);
+    // Setup event listeners (Pointer Events)
+    window.addEventListener('resize', this.handleResize);
+    // Accessibility
+    this.canvas.setAttribute('role', 'application');
+    this.canvas.setAttribute('aria-label', options.ariaLabel || 'Interactive virtual piano keyboard');
+    this.canvas.tabIndex = 0;
+    // Pointer events
+    this.canvas.addEventListener('pointerdown', this.onPointerDown);
+    this.canvas.addEventListener('pointerup', this.onPointerUp);
+    this.canvas.addEventListener('pointercancel', this.onPointerUp);
+    this.canvas.addEventListener('pointermove', this.onPointerMove);
+    // Keyboard (QWERTY) — listen globally so canvas focus isn't required
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
 
     // Initialize
     this.resize();
@@ -220,9 +223,9 @@ export class DrawKeyboard extends EventTarget {
     const rel = noteNumber - this.startingNote;
     const chromaticNote = mod(rel + 1200, 12);
     const isBlack = PIANO_KEYS.black.includes(chromaticNote as any);
-  const ctx = this.ctx;
-  ctx.save();
-  const small = rect.width < 15;
+    const ctx = this.ctx;
+    ctx.save();
+    const small = rect.width < 15;
     const fontSize = small ? 7 : 10;
     ctx.font = `${fontSize}px Arial`;
     ctx.fillStyle = color || (isBlack ? '#fff' : '#111');
@@ -300,7 +303,7 @@ export class DrawKeyboard extends EventTarget {
     if (noteNumber < 0 || noteNumber > 127) return;
     if (color) this.coloredNotes.set(noteNumber, color);
     else this.coloredNotes.delete(noteNumber);
-  this.redrawNote(noteNumber);
+    this.redrawNote(noteNumber);
   }
 
   /** Add/update a text label on a note (empty/undefined text clears) */
@@ -312,7 +315,7 @@ export class DrawKeyboard extends EventTarget {
       this.noteLabels.set(noteNumber, entry);
     }
     else this.noteLabels.delete(noteNumber);
-  this.redrawNote(noteNumber);
+    this.redrawNote(noteNumber);
   }
 
   /**
@@ -438,12 +441,12 @@ export class DrawKeyboard extends EventTarget {
    */
   destroy(): void {
     window.removeEventListener('resize', this.handleResize);
-  this.canvas.removeEventListener('pointerdown', this.onPointerDown);
-  this.canvas.removeEventListener('pointerup', this.onPointerUp);
-  this.canvas.removeEventListener('pointercancel', this.onPointerUp);
-  this.canvas.removeEventListener('pointermove', this.onPointerMove);
-  window.removeEventListener('keydown', this.onKeyDown);
-  window.removeEventListener('keyup', this.onKeyUp);
+    this.canvas.removeEventListener('pointerdown', this.onPointerDown);
+    this.canvas.removeEventListener('pointerup', this.onPointerUp);
+    this.canvas.removeEventListener('pointercancel', this.onPointerUp);
+    this.canvas.removeEventListener('pointermove', this.onPointerMove);
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
@@ -518,24 +521,29 @@ export class DrawKeyboard extends EventTarget {
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Draw white keys and black keys
-  ctx.lineJoin = 'miter';
-  ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+    ctx.lineCap = 'butt';
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     ctx.fillStyle = '#333';
 
-  for (let whiteKeyIndex = 0; whiteKeyIndex < this.visibleWhiteKeys; whiteKeyIndex++) {
+    for (let whiteKeyIndex = 0; whiteKeyIndex < this.visibleWhiteKeys; whiteKeyIndex++) {
       // Draw white key outline
+      // Align strokes to device pixel for crisp 1px lines
+      const x0 = Math.round(this.canvasMarginX + whiteKeyIndex * keyWidth) + 0.5;
+      const x1 = Math.round(this.canvasMarginX + whiteKeyIndex * keyWidth + keyWidth) + 0.5;
+      const y0 = Math.round(this.canvasMarginY) + 0.5;
+      const y1 = Math.round(this.canvasMarginY + keyHeight) + 0.5;
       ctx.beginPath();
-      ctx.moveTo(this.canvasMarginX + whiteKeyIndex * keyWidth, this.canvasMarginY);
-      ctx.lineTo(this.canvasMarginX + whiteKeyIndex * keyWidth + keyWidth, this.canvasMarginY);
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y0);
       ctx.lineTo(
-        this.canvasMarginX + whiteKeyIndex * keyWidth + keyWidth,
-        this.canvasMarginY + keyHeight
+        x1,
+        y1
       );
-      ctx.lineTo(this.canvasMarginX + whiteKeyIndex * keyWidth, this.canvasMarginY + keyHeight);
+      ctx.lineTo(x0, y1);
       if (whiteKeyIndex === 0) {
-        ctx.lineTo(this.canvasMarginX + whiteKeyIndex * keyWidth, this.canvasMarginY);
+        ctx.lineTo(x0, y0);
       }
       ctx.stroke();
 
@@ -611,12 +619,12 @@ export class DrawKeyboard extends EventTarget {
     const ctx = this.ctx;
     const keyWidth = this.whiteKeyWidth;
     const keyHeight = this.whiteKeyHeight;
-  // Draw with sharp corners; no dynamic border expansion
+    // Draw with sharp corners; no dynamic border expansion
     const chromaticNote = mod(relativeNoteIndex + 1200, 12);
     const isBlackKey = PIANO_KEYS.black.includes(chromaticNote as any);
     const octaveNumber = Math.floor(relativeNoteIndex / 12);
 
-  if (isBlackKey) {
+    if (isBlackKey) {
       // Draw black key
       const blackKeyXIndex =
         7 * octaveNumber +
@@ -624,7 +632,7 @@ export class DrawKeyboard extends EventTarget {
         1;
       ctx.fillStyle = isHighlighted ? color : '#333';
       ctx.fillRect(
-        this.canvasMarginX + blackKeyXIndex * keyWidth + keyWidth * 0.75,
+        this.canvasMarginX + blackKeyXIndex * keyWidth + keyWidth * 0.75 + 1,
         this.canvasMarginY,
         this.blackKeyWidth,
         this.blackKeyHeight
@@ -656,9 +664,9 @@ export class DrawKeyboard extends EventTarget {
       if (blackKeySides) {
         ctx.fillRect(
           this.canvasMarginX +
-            whiteKeyPosition * keyWidth +
-            2 +
-            keyWidth * 0.25 * blackKeySides[0],
+          whiteKeyPosition * keyWidth +
+          2 +
+          keyWidth * 0.25 * blackKeySides[0],
           this.canvasMarginY + 2,
           keyWidth - 4 - keyWidth * 0.25 * (blackKeySides[0] + blackKeySides[1]),
           keyHeight * 0.65
@@ -676,10 +684,10 @@ export class DrawKeyboard extends EventTarget {
       }
     }
 
-  // Draw label if present for this note
-  const noteNumber = relativeNoteIndex + this.startingNote;
-  const label = this.noteLabels.get(noteNumber);
-  if (label) this.drawNoteLabel(noteNumber, label.text, label.color);
+    // Draw label if present for this note
+    const noteNumber = relativeNoteIndex + this.startingNote;
+    const label = this.noteLabels.get(noteNumber);
+    if (label) this.drawNoteLabel(noteNumber, label.text, label.color);
   }
 
   private coordsToNote(canvasX: number, canvasY: number): number {
@@ -687,7 +695,7 @@ export class DrawKeyboard extends EventTarget {
     const couldBeBlackKey = canvasY < this.blackKeyHeight + 2;
 
     // Determine which white key we're over
-  const whiteKeyIndex = Math.floor(adjustedX / this.whiteKeyWidth);
+    const whiteKeyIndex = Math.floor(adjustedX / this.whiteKeyWidth);
 
     // Check if we might be hitting a black key on the left or right side
     const xWithinKey = adjustedX - whiteKeyIndex * this.whiteKeyWidth;
@@ -695,7 +703,7 @@ export class DrawKeyboard extends EventTarget {
     const rightBlackKeyZone = couldBeBlackKey && xWithinKey > this.whiteKeyWidth * (1 - 0.35);
 
     // Convert white key index to octave and position within octave
-  const octaveNumber = Math.floor(whiteKeyIndex / 7);
+    const octaveNumber = Math.floor(whiteKeyIndex / 7);
     let whiteKeyInOctave = whiteKeyIndex - octaveNumber * 7;
 
     // Map white key position to chromatic note (0-11)
@@ -773,7 +781,7 @@ export class DrawKeyboard extends EventTarget {
     }
 
     // Handle pitch bend (X-axis movement)
-  if (this.gestures.pitchBend && Math.abs(averageXMovement) > 10) {
+    if (this.gestures.pitchBend && Math.abs(averageXMovement) > 10) {
       const bendDirection = averageXMovement > 0;
       const bendAmount = Math.min(127, Math.max(0, Math.abs(averageXMovement) - 10));
       const pitchBendValue = 8192 + ((bendDirection ? 1 : -1) * bendAmount * 8191) / 127;
@@ -901,13 +909,13 @@ export class DrawKeyboard extends EventTarget {
       }
       return notes;
     }
-  if (this.qwertyLayout === 'singleRow' || this.qwertyLayout === 'singleRowExtended') {
+    if (this.qwertyLayout === 'singleRow' || this.qwertyLayout === 'singleRowExtended') {
       // Interleaved single-row mapping including black keys using nearby home-row codes
       // Sequence covers 13 semitones starting at base: Z S X D C V G B H N J M ,
       const seq = [
-        'KeyZ','KeyS','KeyX','KeyD','KeyC','KeyV','KeyG','KeyB','KeyH','KeyN','KeyJ','KeyM','Comma'
+        'KeyZ', 'KeyS', 'KeyX', 'KeyD', 'KeyC', 'KeyV', 'KeyG', 'KeyB', 'KeyH', 'KeyN', 'KeyJ', 'KeyM', 'Comma'
       ];
-      const ext = ['Period','Slash']; // continue upward by semitone
+      const ext = ['Period', 'Slash']; // continue upward by semitone
       const row = this.qwertyLayout === 'singleRowExtended' ? seq.concat(ext) : seq;
       for (let i = 0; i < row.length; i++) notes[row[i]] = clamp(base + i, 0, 127);
       // In extended single row, also make Backquote a convenient C of selected octave
@@ -918,37 +926,37 @@ export class DrawKeyboard extends EventTarget {
     }
     if (this.qwertyLayout === 'doubleRow' || this.qwertyLayout === 'doubleRowExtended') {
       // Whites on bottom (diatonic), blacks on upper keys between appropriate whites
-      const bottomWhites = ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash'];
+      const bottomWhites = ['KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash'];
       // Q-row and number keys for interstitial sharps/flats: Q 2 W 3 E | R 5 T 6 Y 7 U ...
       const topBlacksBase = [
-        'KeyQ','Digit2','KeyW','Digit3','KeyE',
-        'KeyR','Digit5','KeyT','Digit6','KeyY','Digit7','KeyU'
+        'KeyQ', 'Digit2', 'KeyW', 'Digit3', 'KeyE',
+        'KeyR', 'Digit5', 'KeyT', 'Digit6', 'KeyY', 'Digit7', 'KeyU'
       ];
-  const topBlacksExt = ['Minus','Equal','Semicolon'];
+      const topBlacksExt = ['Minus', 'Equal', 'Semicolon'];
       const topBlacks = this.qwertyLayout === 'doubleRowExtended' ? topBlacksBase.concat(topBlacksExt) : topBlacksBase;
 
       // Map whites sequentially to natural notes starting from aligned base
-      const WHITE = [0,2,4,5,7,9,11];
-      const isBlack = (n:number)=>[1,3,6,8,10].includes((n%12+12)%12);
+      const WHITE = [0, 2, 4, 5, 7, 9, 11];
+      const isBlack = (n: number) => [1, 3, 6, 8, 10].includes((n % 12 + 12) % 12);
       let n = base;
       while (isBlack(n)) n--; // align to nearest lower white
-      let wIdx = WHITE.indexOf(((n%12)+12)%12);
-      let oct = Math.floor(n/12);
+      let wIdx = WHITE.indexOf(((n % 12) + 12) % 12);
+      let oct = Math.floor(n / 12);
       const whites: number[] = [];
-      for (let i=0;i<bottomWhites.length;i++){
+      for (let i = 0; i < bottomWhites.length; i++) {
         const chroma = WHITE[wIdx];
-        const note = oct*12+chroma;
+        const note = oct * 12 + chroma;
         notes[bottomWhites[i]] = note;
         whites.push(note);
-        wIdx++; if (wIdx===7){wIdx=0; oct++;}
+        wIdx++; if (wIdx === 7) { wIdx = 0; oct++; }
       }
       // Insert blacks between white neighbors separated by 2 semitones
-      let bi=0;
-      for (let i=0;i<whites.length-1 && bi<topBlacks.length;i++){
+      let bi = 0;
+      for (let i = 0; i < whites.length - 1 && bi < topBlacks.length; i++) {
         const a = whites[i];
-        const b = whites[i+1];
-        if (((b-a)+12)%12===2){
-          notes[topBlacks[bi++]] = a+1;
+        const b = whites[i + 1];
+        if (((b - a) + 12) % 12 === 2) {
+          notes[topBlacks[bi++]] = a + 1;
         }
       }
       // In extended mode, also make Backquote a convenient C of selected octave
