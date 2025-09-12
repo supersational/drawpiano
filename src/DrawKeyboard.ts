@@ -260,7 +260,15 @@ export class DrawKeyboard extends EventTarget {
   /** Show or hide octave labels (e.g., C1, C2) */
   setShowOctaveLabels(show: boolean): void {
     this.showOctaveLabels = !!show;
-    this.redrawAllKeys();
+    // Only redraw visible C white keys to add/remove octave labels
+    if (this.currentWhiteKeyNumbers && this.currentWhiteKeyNumbers.length) {
+      for (let i = 0; i < this.currentWhiteKeyNumbers.length; i++) {
+        const n = this.currentWhiteKeyNumbers[i]!;
+        if (mod(n, 12) === 0) this.redrawNote(n);
+      }
+    } else {
+      this.redrawAllKeys();
+    }
   }
 
   /** Enable/disable gestures (pitch bend, modulation) */
@@ -292,7 +300,7 @@ export class DrawKeyboard extends EventTarget {
     if (noteNumber < 0 || noteNumber > 127) return;
     if (color) this.coloredNotes.set(noteNumber, color);
     else this.coloredNotes.delete(noteNumber);
-    this.redrawAllKeys();
+  this.redrawNote(noteNumber);
   }
 
   /** Add/update a text label on a note (empty/undefined text clears) */
@@ -304,7 +312,7 @@ export class DrawKeyboard extends EventTarget {
       this.noteLabels.set(noteNumber, entry);
     }
     else this.noteLabels.delete(noteNumber);
-    this.redrawAllKeys();
+  this.redrawNote(noteNumber);
   }
 
   /**
@@ -476,6 +484,19 @@ export class DrawKeyboard extends EventTarget {
 
   private redrawAllKeys(): void {
     this.drawKeyboardSkeleton();
+  }
+
+  /** Redraw a single note using current persistent color/label state */
+  private redrawNote(noteNumber: number): void {
+    if (noteNumber < 0 || noteNumber > 127) return;
+    const relative = noteNumber - this.startingNote;
+    const persistent = this.coloredNotes.get(noteNumber);
+    if (persistent) {
+      this.enqueueKeyDraw([relative, persistent, true]);
+    } else {
+      // Draw the key in its base appearance (not highlighted)
+      this.enqueueKeyDraw([relative, this.highlightColor, false]);
+    }
   }
 
   private drawKeyboardSkeleton(): void {
