@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DrawPiano Library Demo</title>
+    <title>DrawPiano Library Demo</title>
     <style>
       :root {
         --bg: #0e1116;
@@ -79,7 +79,7 @@
         width: 100%;
         touch-action: none;
         background: #fff;
-  border-radius: 0;
+        border-radius: 0;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
@@ -291,7 +291,7 @@
   </head>
   <body>
     <div class="container">
-  <h1>DrawPiano</h1>
+      <h1>DrawPiano</h1>
       <p class="subtitle">A touch-enabled virtual piano keyboard with MIDI output</p>
 
       <div class="panel">
@@ -342,7 +342,9 @@
           <div class="control-group">
             <h3>Display</h3>
             <div class="control">
-              <label><input id="showOctaveLabels" type="checkbox" checked /> Show octave labels</label>
+              <label
+                ><input id="showOctaveLabels" type="checkbox" checked /> Show octave labels</label
+              >
             </div>
           </div>
 
@@ -371,10 +373,15 @@
           <div class="control-group">
             <h3>Touch Gestures</h3>
             <div class="control">
-              <label><input id="gestPitchBend" type="checkbox" checked /> Enable pitch bend (X)</label>
+              <label
+                ><input id="gestPitchBend" type="checkbox" checked /> Enable pitch bend (X)</label
+              >
             </div>
             <div class="control">
-              <label><input id="gestModulation" type="checkbox" checked /> Enable modulation/expr (Y)</label>
+              <label
+                ><input id="gestModulation" type="checkbox" checked /> Enable modulation/expr
+                (Y)</label
+              >
             </div>
             <div class="info-chips">
               <span class="chip">Tap: Play note</span>
@@ -505,7 +512,7 @@ keyboard.addEventListener('controlChange', (e) => {
         baseNoteName: document.getElementById('baseNoteName'),
         showOctaveLabels: document.getElementById('showOctaveLabels'),
         qwertySelect: document.getElementById('qwertySelect'),
-  qwertyBase: document.getElementById('qwertyBase'),
+        qwertyBase: document.getElementById('qwertyBase'),
         gestPitchBend: document.getElementById('gestPitchBend'),
         gestModulation: document.getElementById('gestModulation'),
 
@@ -549,9 +556,9 @@ keyboard.addEventListener('controlChange', (e) => {
         const value = parseInt(controls.startNoteSlider.value);
         controls.startNoteVal.textContent = value;
         keyboard.setBaseNote(value);
-  // Sync note name field
-  const name = midiToName(value);
-  if (controls.baseNoteName) controls.baseNoteName.value = name;
+        // Sync note name field
+        const name = midiToName(value);
+        if (controls.baseNoteName) controls.baseNoteName.value = name;
       });
 
       controls.velocitySlider.addEventListener('input', () => {
