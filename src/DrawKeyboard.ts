@@ -623,7 +623,7 @@ export class DrawKeyboard extends EventTarget {
     const chromaticNote = mod(relativeNoteIndex + 1200, 12);
     const isBlackKey = PIANO_KEYS.black.includes(chromaticNote as any);
     const octaveNumber = Math.floor(relativeNoteIndex / 12);
-
+    const [plusTwo, minusOne] = [isHighlighted ? 0 : 2, isHighlighted ? 0 : -1];
     if (isBlackKey) {
       // Draw black key
       const blackKeyXIndex =
@@ -632,9 +632,9 @@ export class DrawKeyboard extends EventTarget {
         1;
       ctx.fillStyle = isHighlighted ? color : '#333';
       ctx.fillRect(
-        this.canvasMarginX + blackKeyXIndex * keyWidth + keyWidth * 0.75 + 1,
+        this.canvasMarginX + blackKeyXIndex * keyWidth + keyWidth * 0.75 + 1 + minusOne,
         this.canvasMarginY,
-        this.blackKeyWidth,
+        this.blackKeyWidth + plusTwo,
         this.blackKeyHeight
       );
     } else {
@@ -666,9 +666,9 @@ export class DrawKeyboard extends EventTarget {
           this.canvasMarginX +
           whiteKeyPosition * keyWidth +
           2 +
-          keyWidth * 0.25 * blackKeySides[0],
+          keyWidth * 0.25 * blackKeySides[0] + minusOne,
           this.canvasMarginY + 2,
-          keyWidth - 4 - keyWidth * 0.25 * (blackKeySides[0] + blackKeySides[1]),
+          keyWidth - 4 - keyWidth * 0.25 * (blackKeySides[0] + blackKeySides[1]) + plusTwo,
           keyHeight * 0.65
         );
       }

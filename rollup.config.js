@@ -3,7 +3,7 @@ import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 
-export default defineConfig({
+const libConfig = defineConfig({
   input: 'src/index.ts',
   output: [
     // ESM build
@@ -22,17 +22,32 @@ export default defineConfig({
       entryFileNames: 'index.js',
       exports: 'named',
     },
-    // UMD builds
+  ],
+  plugins: [
+    nodeResolve(),
+    typescript({
+      tsconfig: './tsconfig.json',
+      declaration: false,
+      declarationMap: false,
+    }),
+  ],
+});
+
+const umdConfig = defineConfig({
+  input: 'src/umd.ts',
+  output: [
     {
       file: 'dist/umd/drawpiano.js',
       format: 'umd',
       name: 'DrawKeyboard',
+      exports: 'default',
       sourcemap: true,
     },
     {
       file: 'dist/umd/drawpiano.min.js',
       format: 'umd',
       name: 'DrawKeyboard',
+      exports: 'default',
       sourcemap: true,
       plugins: [terser()],
     },
@@ -46,3 +61,5 @@ export default defineConfig({
     }),
   ],
 });
+
+export default [libConfig, umdConfig];
