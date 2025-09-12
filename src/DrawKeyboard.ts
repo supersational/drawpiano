@@ -98,6 +98,8 @@ export class DrawKeyboard extends EventTarget {
   private highlightColor: string;
   private noteVelocity: number;
   private showOctaveLabels = true;
+  /** Cached absolute MIDI note numbers for each visible white key (for accurate octave labels) */
+  private currentWhiteKeyNumbers: number[] = [];
   private gestures = { pitchBend: true, modulation: true } as Required<
     NonNullable<DrawKeyboardOptions['gestures']>
   >;
@@ -481,6 +483,15 @@ export class DrawKeyboard extends EventTarget {
     const keyWidth = this.whiteKeyWidth;
     const keyHeight = this.whiteKeyHeight;
 
+    // Build mapping of visible white key indices to their actual MIDI note numbers
+    this.currentWhiteKeyNumbers = [];
+    let n = this.startingNote;
+    while (this.currentWhiteKeyNumbers.length < this.visibleWhiteKeys) {
+      const pc = mod(n, 12);
+      if (PIANO_KEYS.white.includes(pc as any)) this.currentWhiteKeyNumbers.push(n);
+      n++;
+    }
+
     // Clear canvas with white background
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -492,7 +503,7 @@ export class DrawKeyboard extends EventTarget {
     ctx.lineWidth = 1;
     ctx.fillStyle = '#333';
 
-    for (let whiteKeyIndex = 0; whiteKeyIndex < this.visibleWhiteKeys; whiteKeyIndex++) {
+  for (let whiteKeyIndex = 0; whiteKeyIndex < this.visibleWhiteKeys; whiteKeyIndex++) {
       // Draw white key outline
       ctx.beginPath();
       ctx.moveTo(this.canvasMarginX + whiteKeyIndex * keyWidth, this.canvasMarginY);
@@ -526,14 +537,18 @@ export class DrawKeyboard extends EventTarget {
         );
       }
 
-      // Draw octave labels
-      if (this.showOctaveLabels && whiteKeyIndex % 7 === 0) {
-        this.drawOctaveLabel(Math.floor(whiteKeyIndex / 7));
+      // Draw octave labels only on true C keys
+      if (this.showOctaveLabels) {
+        const noteNumber = this.currentWhiteKeyNumbers[whiteKeyIndex];
+        if (noteNumber !== undefined && mod(noteNumber, 12) === 0) {
+          const midiOctave = Math.floor(noteNumber / 12) - 1; // MIDI standard: C4 = 60
+          this.drawOctaveLabel('C' + midiOctave, whiteKeyIndex);
+        }
       }
     }
   }
 
-  private drawOctaveLabel(octaveNumber: number): void {
+  private drawOctaveLabel(label: string, whiteKeyIndex: number): void {
     const ctx = this.ctx;
     const keyWidth = this.whiteKeyWidth;
     const keyHeight = this.whiteKeyHeight;
@@ -545,15 +560,15 @@ export class DrawKeyboard extends EventTarget {
     if (small) {
       ctx.textAlign = 'left';
       ctx.fillText(
-        'C' + octaveNumber,
-        this.canvasMarginX + octaveNumber * keyWidth * 7 + 2,
+        label,
+        this.canvasMarginX + whiteKeyIndex * keyWidth + 2,
         this.canvasMarginY + keyHeight * 0.9
       );
     } else {
       ctx.textAlign = 'center';
       ctx.fillText(
-        'C' + octaveNumber,
-        this.canvasMarginX + octaveNumber * keyWidth * 7 + keyWidth / 2,
+        label,
+        this.canvasMarginX + whiteKeyIndex * keyWidth + keyWidth / 2,
         this.canvasMarginY + keyHeight * 0.85
       );
     }
@@ -580,7 +595,7 @@ export class DrawKeyboard extends EventTarget {
     const isBlackKey = PIANO_KEYS.black.includes(chromaticNote as any);
     const octaveNumber = Math.floor(relativeNoteIndex / 12);
 
-    if (isBlackKey) {
+  if (isBlackKey) {
       // Draw black key
       const blackKeyXIndex =
         7 * octaveNumber +
@@ -629,8 +644,14 @@ export class DrawKeyboard extends EventTarget {
         );
       }
 
-  if (this.showOctaveLabels && chromaticNote === 0) {
-        this.drawOctaveLabel(octaveNumber);
+      if (this.showOctaveLabels && chromaticNote === 0) {
+        // Re-draw label for highlighted C so it stays visible
+        const absNote = relativeNoteIndex + this.startingNote;
+        const whiteKeyAbsoluteIndex = this.currentWhiteKeyNumbers.indexOf(absNote);
+        if (whiteKeyAbsoluteIndex !== -1) {
+          const midiOctave = Math.floor(absNote / 12) - 1;
+          this.drawOctaveLabel('C' + midiOctave, whiteKeyAbsoluteIndex);
+        }
       }
     }
 
