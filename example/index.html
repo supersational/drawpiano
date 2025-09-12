@@ -462,8 +462,8 @@ keyboard.addEventListener('controlChange', (e) => {
     </div>
 
     <script type="module">
-      // For development, import from source
-  // In production, you would use: import { DrawKeyboard } from 'drawpiano';
+      // Development-only module import. For production deployment via Cloudflare Workers
+      // the build:site script rewrites this to use the UMD bundle (dist/umd/drawpiano.min.js)
       import { DrawKeyboard } from '../src/index.ts';
 
       // Create keyboard instance

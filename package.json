@@ -30,7 +30,8 @@
     "format:check": "prettier . --check",
     "prepublishOnly": "npm run build",
     "serve:umd": "python3 -m http.server 8080",
-    "size": "npm run build && du -sh dist/"
+    "size": "npm run build && du -sh dist/",
+    "build:site": "npm run build && node scripts/prepare-example-site.js"
   },
   "keywords": [
     "piano",
