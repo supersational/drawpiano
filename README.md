@@ -13,6 +13,12 @@ A touch-enabled virtual piano keyboard with MIDI output for web applications.
 - 🔧 **TypeScript support** - Full type definitions included
 - 🪶 **Lightweight** - Zero dependencies
 
+## Demo 
+
+[drawpiano.sven.zone](https://drawpiano.sven.zone)
+
+<img width="1224" height="832" alt="image" src="https://github.com/user-attachments/assets/1cc4eed6-cd30-4f31-85d8-23340676ba0a" />
+
 ## Installation
 
 ```bash
