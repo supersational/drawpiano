@@ -1,5 +1,5 @@
 import {
-  DrawKeyboardOptions,
+  DrawPianoOptions,
   MIDIMessage,
   MIDICallbacks,
   TouchState,
@@ -84,7 +84,7 @@ const QWERTY_PRESETS: Record<string, Record<string, number>> = {
  * });
  * ```
  */
-export class DrawKeyboard extends EventTarget {
+export class DrawPiano extends EventTarget {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
@@ -101,9 +101,9 @@ export class DrawKeyboard extends EventTarget {
   /** Cached absolute MIDI note numbers for each visible white key (for accurate octave labels) */
   private currentWhiteKeyNumbers: number[] = [];
   private gestures = { pitchBend: true, modulation: true } as Required<
-    NonNullable<DrawKeyboardOptions['gestures']>
+    NonNullable<DrawPianoOptions['gestures']>
   >;
-  private qwertyLayout: NonNullable<DrawKeyboardOptions['qwertyLayout']> = 'none';
+  private qwertyLayout: NonNullable<DrawPianoOptions['qwertyLayout']> = 'none';
   private qwertyBase: number = 60;
   // Optional custom QWERTY mapping: code -> semitone offset from C of selected octave
   private qwertyCustomMap: Record<string, number> | null = null;
@@ -129,7 +129,7 @@ export class DrawKeyboard extends EventTarget {
   // Animation
   private animationFrameId = 0;
 
-  constructor(options: DrawKeyboardOptions = {}) {
+  constructor(options: DrawPianoOptions = {}) {
     super();
 
     // Setup canvas
@@ -280,7 +280,7 @@ export class DrawKeyboard extends EventTarget {
   }
 
   /** Set QWERTY input layout */
-  setQwertyLayout(layout: NonNullable<DrawKeyboardOptions['qwertyLayout']>): void {
+  setQwertyLayout(layout: NonNullable<DrawPianoOptions['qwertyLayout']>): void {
     this.qwertyLayout = layout;
   }
 
@@ -789,8 +789,8 @@ export class DrawKeyboard extends EventTarget {
     }
 
     // Handle modulation (Y-axis movement)
-    let controlChangeNumber = 11;
-    let modulationAmount = 0;
+  let controlChangeNumber = 11;
+  let modulationAmount = 0;
     if (this.gestures.modulation && maxYMovement >= 0) {
       controlChangeNumber = 11;
       modulationAmount = Math.min(127, Math.max(0, 127 - maxYMovement));
@@ -798,7 +798,10 @@ export class DrawKeyboard extends EventTarget {
       controlChangeNumber = 1;
       modulationAmount = Math.min(127, Math.max(0, Math.abs(maxYMovement)));
     }
-    if (this.gestures.modulation) this.sendMidiMessage([0xb0, controlChangeNumber, modulationAmount]);
+    // Ensure integer CC values
+    modulationAmount = Math.round(modulationAmount);
+    if (this.gestures.modulation)
+      this.sendMidiMessage([0xb0, controlChangeNumber, modulationAmount]);
   }
 
   // Pointer events
