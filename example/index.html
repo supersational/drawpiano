@@ -225,7 +225,9 @@
         padding: 12px;
         border-radius: 6px;
         border: 1px solid rgba(255, 255, 255, 0.05);
-        min-height: 60px;
+        min-height: 160px;
+        max-height: 160px;
+        overflow: auto;
         white-space: pre-wrap;
         overflow-wrap: break-word;
       }
@@ -243,7 +245,7 @@
 
       .example-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: 1fr; /* single column */
         gap: 16px;
       }
 
@@ -293,6 +295,12 @@
     <div class="container">
       <h1>DrawPiano</h1>
       <p class="subtitle">A touch-enabled virtual piano keyboard with MIDI output</p>
+
+      <!-- Move MIDI Output above the keyboard -->
+      <div class="log-panel">
+        <h3>MIDI Output</h3>
+        <div class="log" id="midiLog">Ready... Touch the keyboard to generate MIDI events.</div>
+      </div>
 
       <div class="panel">
         <div class="keyboard-container">
@@ -393,111 +401,148 @@
         </div>
       </div>
 
-      <div class="log-panel">
-        <h3>MIDI Output</h3>
-        <div class="log" id="midiLog">Ready... Touch the keyboard to generate MIDI events.</div>
-      </div>
-
-      <div class="examples">
-        <h2>Usage Examples</h2>
+      <!-- Options docs section -->
+      <div class="panel">
+        <h2 style="margin-top:0">Common Options</h2>
         <div class="example-grid">
           <div class="example-card">
-            <h3>Basic Setup</h3>
-            <p>Create a simple keyboard with default settings</p>
-            <pre><code>import { DrawKeyboard } from 'drawpiano';
-
-const keyboard = new DrawKeyboard({
-  container: document.getElementById('keyboard'),
-  onNoteOn: (note, velocity) => {
-    console.log('Note on:', note, velocity);
+            <h3>Dimensions & Range</h3>
+            <pre><code class="language-js">new DrawPiano({
+  keyWidth: 15,        // width of white keys (px)
+  keyHeight: 80,       // height of keys (px)
+  baseNote: 12,        // MIDI number or note name like 'C4'
+  maxWhiteKeys: 68,    // max white keys visible
+});</code></pre>
+          </div>
+          <div class="example-card">
+            <h3>Styling & Accessibility</h3>
+            <pre><code class="language-js">new DrawPiano({
+  highlightColor: '#4ea1ff',
+  showOctaveLabels: true,
+  ariaLabel: 'Interactive virtual piano keyboard',
+});</code></pre>
+          </div>
+          <div class="example-card">
+            <h3>MIDI & Callbacks</h3>
+            <pre><code class="language-js">new DrawPiano({
+  velocity: 100,
+  onMidi: (msg) => console.log('MIDI:', msg),
+  onNoteOn: (note, vel) => console.log('Note On', note, vel),
+  onNoteOff: (note) => console.log('Note Off', note),
+  onPitchBend: (v14) => console.log('PB:', v14),
+  onControlChange: (cc, val) => console.log('CC', cc, val),
+});</code></pre>
+          </div>
+          <div class="example-card">
+            <h3>QWERTY Input</h3>
+            <pre><code class="language-js">new DrawPiano({
+  qwertyLayout: 'singleRow',         // 'none' | 'singleRow' | 'singleRowExtended' | 'doubleRow' | 'doubleRowExtended'
+  qwertyBaseNote: 'C4',              // number or name; anchor for layout
+});
+// Runtime helpers:
+keyboard.setQwertyLayout('doubleRow');
+keyboard.setQwertyBase('C4');
+// For custom maps (extended semantics):
+keyboard.setQwertyMap({ KeyZ: 0, KeyS: 1, KeyX: 2 /* ... */ });</code></pre>
+          </div>
+          <div class="example-card">
+            <h3>Gestures</h3>
+            <pre><code class="language-js">new DrawPiano({
+  gestures: {
+    pitchBend: true,   // drag X
+    modulation: true,  // drag Y (down=expr, up=mod)
   },
-  onNoteOff: (note) => {
-    console.log('Note off:', note);
-  }
 });</code></pre>
           </div>
+        </div>
+      </div>
 
-          <div class="example-card">
-            <h3>Custom Configuration</h3>
-            <p>Configure key size, range, and styling</p>
-            <pre><code>const keyboard = new DrawKeyboard({
-  keyWidth: 20,
-  keyHeight: 120,
-  baseNote: 60, // Middle C
-  highlightColor: '#ff6b6b',
-  velocity: 80,
-  onMidi: (message) => {
-    // Handle all MIDI messages
-    console.log('MIDI:', message);
-  }
-});</code></pre>
+      <!-- Installation section -->
+      <div class="panel">
+        <h2 style="margin-top:0">Installation</h2>
+        <div class="example-card">
+          <h3>Install via npm</h3>
+          <div style="position:relative;">
+            <pre><code>npm install drawpiano</code></pre>
+            <button id="copyInstall" class="btn" style="position:absolute;top:8px;right:8px;width:auto;padding:6px 10px;display:flex;align-items:center;gap:6px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1z" fill="#E5E9F0"/>
+                <path d="M20 5H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h12v14z" fill="#E5E9F0"/>
+              </svg>
+              <span id="copyInstallLabel">Copy</span>
+            </button>
           </div>
-
-          <div class="example-card">
-            <h3>Programmatic Control</h3>
-            <p>Press and release keys from code</p>
-            <pre><code>// Press middle C
-keyboard.press(60, 100);
-
-// Release after 500ms
-setTimeout(() => {
-  keyboard.release(60);
-}, 500);
-
-// Change settings dynamically
-keyboard.setKeyWidth(25);
-keyboard.setBaseNote(48);</code></pre>
+        </div>
+        <h3 style="margin-top:1.25rem">From CDN</h3>
+        <div class="control" style="max-width:320px;">
+          <label for="cdnSelect">CDN Provider</label>
+          <select id="cdnSelect">
+            <option value="unpkg" selected>unpkg</option>
+            <option value="jsdelivr">jsDelivr</option>
+          </select>
+        </div>
+        <div id="cdn-unpkg" class="cdn-panel">
+          <div class="example-grid">
+            <div class="example-card">
+              <h3>ESM (unpkg)</h3>
+              <pre><code class="language-html">&lt;script type="module"&gt;
+  import DrawPiano from 'https://unpkg.com/drawpiano@latest/dist/esm/index.js';
+  // or named import:
+  // import { DrawPiano } from 'https://unpkg.com/drawpiano@latest/dist/esm/index.js';
+  const keyboard = new DrawPiano({ canvas: document.getElementById('keyboardCanvas') });
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="example-card">
+              <h3>UMD (unpkg)</h3>
+              <pre><code class="language-html">&lt;script src="https://unpkg.com/drawpiano@latest/dist/umd/drawpiano.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const keyboard = new window.DrawPiano({ canvas: document.getElementById('keyboardCanvas') });
+&lt;/script&gt;</code></pre>
+            </div>
           </div>
-
-          <div class="example-card">
-            <h3>Event Listeners</h3>
-            <p>Listen for keyboard events</p>
-            <pre><code>keyboard.addEventListener('noteOn', (e) => {
-  console.log('Note pressed:', e.detail);
-});
-
-keyboard.addEventListener('pitchBend', (e) => {
-  console.log('Pitch bend:', e.detail.value);
-});
-
-keyboard.addEventListener('controlChange', (e) => {
-  console.log('CC:', e.detail);
-});</code></pre>
+        </div>
+        <div id="cdn-jsdelivr" class="cdn-panel" style="display:none;">
+          <div class="example-grid">
+            <div class="example-card">
+              <h3>ESM (jsDelivr)</h3>
+              <pre><code class="language-html">&lt;script type="module"&gt;
+  import DrawPiano from 'https://cdn.jsdelivr.net/npm/drawpiano/dist/esm/index.js';
+  // or named import:
+  // import { DrawPiano } from 'https://cdn.jsdelivr.net/npm/drawpiano/dist/esm/index.js';
+  const keyboard = new DrawPiano({ canvas: document.getElementById('keyboardCanvas') });
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="example-card">
+              <h3>UMD (jsDelivr)</h3>
+              <pre><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/npm/drawpiano/dist/umd/drawpiano.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const keyboard = new window.DrawPiano({ canvas: document.getElementById('keyboardCanvas') });
+&lt;/script&gt;</code></pre>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <script type="module">
-      // Development-only module import. For production deployment via Cloudflare Workers
-      // the build:site script rewrites this to use the UMD bundle (dist/umd/drawpiano.min.js)
-      import { DrawKeyboard } from '../src/index.ts';
+      // Development-only module import. The build:site script rewrites this for production.
+  import { DrawPiano, DrawKeyboard } from '../src/index.ts';
 
       // Create keyboard instance
-      const keyboard = new DrawKeyboard({
+  const keyboard = new DrawPiano({
         canvas: document.getElementById('keyboardCanvas'),
         onMidi: (message) => {
           const [status, data1, data2] = message;
           const hex = (n) => ('0' + n.toString(16)).slice(-2);
           const timestamp = new Date().toLocaleTimeString();
-
           let eventType = 'Unknown';
           if ((status & 0xf0) === 0x90 && data2 > 0) eventType = 'Note On';
-          else if ((status & 0xf0) === 0x80 || ((status & 0xf0) === 0x90 && data2 === 0))
-            eventType = 'Note Off';
+          else if ((status & 0xf0) === 0x80 || ((status & 0xf0) === 0x90 && data2 === 0)) eventType = 'Note Off';
           else if ((status & 0xf0) === 0xe0) eventType = 'Pitch Bend';
           else if ((status & 0xf0) === 0xb0) eventType = 'Control Change';
-
           const logEntry = `[${timestamp}] ${eventType}: ${hex(status)} ${data1} ${data2 ?? ''}`;
           const logElement = document.getElementById('midiLog');
-          logElement.textContent =
-            logEntry + '\n' + logElement.textContent.split('\n').slice(0, 9).join('\n');
-        },
-        onNoteOn: (note, velocity) => {
-          console.log('Note On:', note, velocity);
-        },
-        onNoteOff: (note) => {
-          console.log('Note Off:', note);
+          logElement.textContent = logEntry + '\n' + logElement.textContent.split('\n').slice(0, 9).join('\n');
         },
       });
 
@@ -643,13 +688,39 @@ keyboard.addEventListener('controlChange', (e) => {
       controls.resetBtn.parentElement.appendChild(demoBtn);
 
       // Expose to window for console experimentation
-      window.keyboard = keyboard;
-      window.DrawKeyboard = DrawKeyboard;
+  window.keyboard = keyboard;
+  window.DrawPiano = DrawKeyboard;
 
-      console.log('🎹 DrawKeyboard demo ready! Try:');
+  console.log('🎹 DrawPiano demo ready! Try:');
       console.log('- keyboard.press(60, 100) // Press middle C');
       console.log('- keyboard.release(60) // Release middle C');
       console.log('- keyboard.setKeyWidth(25) // Change key width');
+
+      // CDN dropdown: toggle static panels with pre-highlightable code
+      const cdnSelect = document.getElementById('cdnSelect');
+      const panelUnpkg = document.getElementById('cdn-unpkg');
+      const panelJsDelivr = document.getElementById('cdn-jsdelivr');
+      function updateCdnPanel() {
+        const v = cdnSelect.value;
+        panelUnpkg.style.display = v === 'unpkg' ? '' : 'none';
+        panelJsDelivr.style.display = v === 'jsdelivr' ? '' : 'none';
+      }
+      cdnSelect.addEventListener('change', updateCdnPanel);
+      updateCdnPanel();
+      // Copy npm install
+  const copyBtn = document.getElementById('copyInstall');
+  const copyLabel = document.getElementById('copyInstallLabel');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText('npm install drawpiano');
+            if (copyLabel) copyLabel.textContent = 'Copied!';
+            setTimeout(() => { if (copyLabel) copyLabel.textContent = 'Copy'; }, 1200);
+          } catch (e) {
+            console.warn('Clipboard copy failed', e);
+          }
+        });
+      }
     </script>
   </body>
 </html>
