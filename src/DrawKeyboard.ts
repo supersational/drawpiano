@@ -859,6 +859,8 @@ export class DrawKeyboard extends EventTarget {
       return;
     }
     if (e.repeat) return;
+    // Only handle plain key presses (no modifiers like Cmd, Ctrl, Alt, Shift)
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
     if (this.qwertyLayout === 'none') return;
     const map = this.getQwertyMap();
     const code = e.code;
@@ -874,6 +876,8 @@ export class DrawKeyboard extends EventTarget {
     if (target && (target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName))) {
       return;
     }
+    // Only handle plain key releases (no modifiers)
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
     if (this.qwertyLayout === 'none') return;
     const map = this.getQwertyMap();
     const code = e.code;
