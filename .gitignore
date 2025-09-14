@@ -61,3 +61,4 @@ build/
 *.tsbuildinfo
 wrangler.toml
 /site
+.wranglerignore
