@@ -1,2 +1,2 @@
-import { DrawKeyboard } from './DrawKeyboard.js';
-export default DrawKeyboard;
+import { DrawPiano } from './DrawPiano.js';
+export default DrawPiano;

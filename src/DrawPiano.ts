@@ -482,11 +482,11 @@ export class DrawPiano extends EventTarget {
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.scale(this.devicePixelRatio, this.devicePixelRatio);
 
-    this.drawKeyboardSkeleton();
+    this.drawPianoSkeleton();
   }
 
   private redrawAllKeys(): void {
-    this.drawKeyboardSkeleton();
+    this.drawPianoSkeleton();
   }
 
   /** Redraw a single note using current persistent color/label state */
@@ -502,7 +502,7 @@ export class DrawPiano extends EventTarget {
     }
   }
 
-  private drawKeyboardSkeleton(): void {
+  private drawPianoSkeleton(): void {
     const ctx = this.ctx;
     const keyWidth = this.whiteKeyWidth;
     const keyHeight = this.whiteKeyHeight;

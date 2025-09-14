@@ -1,6 +1,6 @@
-import { DrawKeyboard } from './DrawKeyboard.js';
-// Default export ensures UMD global equals the class (not a namespace)
-export default DrawKeyboard;
-// Keep named exports for ESM/CJS ergonomics
-export { DrawKeyboard };
-export type { DrawKeyboardOptions, MIDIMessage, MIDICallbacks, TouchState } from './types.js';
+import { DrawPiano } from './DrawPiano.js';
+// Default export is DrawPiano class
+export default DrawPiano;
+// Named exports: new name and backward-compat alias
+export { DrawPiano };
+export type { DrawPianoOptions, MIDIMessage, MIDICallbacks, TouchState } from './types.js';

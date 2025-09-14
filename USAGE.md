@@ -19,9 +19,9 @@ yarn add drawpiano
 ### 1. ES Modules (Modern)
 
 ```javascript
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   container: document.getElementById('keyboard'),
   onNoteOn: (note, velocity) => console.log('🎵 Note on:', note),
   onNoteOff: (note) => console.log('🔇 Note off:', note),
@@ -31,9 +31,9 @@ const keyboard = new DrawKeyboard({
 ### 2. CommonJS (Node.js)
 
 ```javascript
-const { DrawKeyboard } = require('drawpiano');
+const { DrawPiano } = require('drawpiano');
 
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   container: document.getElementById('keyboard'),
 });
 ```
@@ -51,7 +51,7 @@ const keyboard = new DrawKeyboard({
 
   <script src="https://unpkg.com/drawpiano@latest/dist/umd/drawpiano.min.js"></script>
     <script>
-      const keyboard = new DrawKeyboard({
+  const keyboard = new DrawPiano({
         container: document.getElementById('keyboard'),
         keyWidth: 20,
         keyHeight: 120,
@@ -66,9 +66,9 @@ const keyboard = new DrawKeyboard({
 ### 4. TypeScript
 
 ```typescript
-import { DrawKeyboard, DrawKeyboardOptions } from 'drawpiano';
+import { DrawPiano, DrawPianoOptions } from 'drawpiano';
 
-const options: DrawKeyboardOptions = {
+const options: DrawPianoOptions = {
   container: document.getElementById('keyboard')!,
   keyWidth: 25,
   keyHeight: 100,
@@ -78,19 +78,19 @@ const options: DrawKeyboardOptions = {
   },
 };
 
-const keyboard = new DrawKeyboard(options);
+const keyboard = new DrawPiano(options);
 ```
 ## 🎛️ Advanced Examples
 
 ### With Web MIDI API
 
 ```javascript
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
 navigator.requestMIDIAccess().then((midiAccess) => {
   const midiOutput = Array.from(midiAccess.outputs.values())[0];
 
-  const keyboard = new DrawKeyboard({
+  const keyboard = new DrawPiano({
     container: document.getElementById('keyboard'),
     onMidi: (message) => {
       if (midiOutput) {
@@ -103,12 +103,12 @@ navigator.requestMIDIAccess().then((midiAccess) => {
 ### With Web Audio API
 
 ```javascript
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
 const audioContext = new AudioContext();
 const activeNotes = new Map();
 
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   container: document.getElementById('keyboard'),
   onNoteOn: (note, velocity) => {
     const frequency = 440 * Math.pow(2, (note - 69) / 12);
@@ -139,7 +139,7 @@ const keyboard = new DrawKeyboard({
 
 ```jsx
 import React, { useEffect, useRef } from 'react';
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
 function PianoKeyboard({ onNotePlay }) {
   const containerRef = useRef(null);
@@ -147,7 +147,7 @@ function PianoKeyboard({ onNotePlay }) {
 
   useEffect(() => {
     if (containerRef.current && !keyboardRef.current) {
-      keyboardRef.current = new DrawKeyboard({
+  keyboardRef.current = new DrawPiano({
         container: containerRef.current,
         onNoteOn: (note, velocity) => {
           onNotePlay?.(note, velocity);
@@ -174,7 +174,7 @@ export default PianoKeyboard;
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
 const keyboardContainer = ref(null);
 let keyboard = null;
@@ -182,7 +182,7 @@ let keyboard = null;
 const emit = defineEmits(['noteOn', 'noteOff']);
 
 onMounted(() => {
-  keyboard = new DrawKeyboard({
+  keyboard = new DrawPiano({
     container: keyboardContainer.value,
     onNoteOn: (note, velocity) => emit('noteOn', { note, velocity }),
     onNoteOff: (note) => emit('noteOff', { note }),

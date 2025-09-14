@@ -27,7 +27,7 @@
 
   <script src="../dist/umd/drawpiano.js"></script>
     <script>
-      const keyboard = new DrawKeyboard({
+  const keyboard = new DrawPiano({
         container: document.getElementById('keyboard'),
         onNoteOn: (note, velocity) => {
           document.getElementById('log').textContent = `Note On: ${note} velocity: ${velocity}`;

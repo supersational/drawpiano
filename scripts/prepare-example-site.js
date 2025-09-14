@@ -32,14 +32,14 @@ const devScript = scriptMatch ? scriptMatch[1] : '';
 
 function transformToUMD(dev) {
   // Replace the dev import with a UMD global reference
-  const importRe = /^\s*import\s+(?:\{\s*(DrawPiano|DrawKeyboard)\s*\}|(DrawPiano|DrawKeyboard))\s+from\s+['"][^'"]+['"];?\s*$/m;
+  const importRe = /^\s*import\s+(?:\{\s*DrawPiano\s*\}|DrawPiano)\s+from\s+['"][^'"]+['"];?\s*$/m;
   const transformed = dev.replace(importRe, 'const DrawPiano = window.DrawPiano;');
   return `<script src="/${distUmd}"></script>\n<script>\n${transformed}\n</script>`;
 }
 
 function transformToESM(dev) {
   // Replace the dev import with an import from built ESM bundle
-  const importRe = /^\s*import\s+(?:\{\s*(DrawPiano|DrawKeyboard)\s*\}|(DrawPiano|DrawKeyboard))\s+from\s+['"][^'"]+['"];?\s*$/m;
+  const importRe = /^\s*import\s+(?:\{\s*DrawPiano\s*\}|DrawPiano)\s+from\s+['"][^'"]+['"];?\s*$/m;
   const transformed = dev.replace(importRe, `import DrawPiano from '/${distEsmDir}/index.js';`);
   return `<script type="module">\n${transformed}\n</script>`;
 }

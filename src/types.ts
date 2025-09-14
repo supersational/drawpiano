@@ -14,7 +14,7 @@ export interface MIDICallbacks {
 /**
  * Keyboard configuration options
  */
-export interface DrawKeyboardOptions {
+export interface DrawPianoOptions {
   /** Container element or canvas element */
   container?: HTMLElement;
   canvas?: HTMLCanvasElement;
@@ -75,7 +75,7 @@ export const PIANO_KEYS = {
 /**
  * Custom keyboard events
  */
-export interface DrawKeyboardEventMap {
+export interface DrawPianoEventMap {
   midi: CustomEvent<MIDIMessage>;
   noteOn: CustomEvent<{ note: number; velocity: number }>;
   noteOff: CustomEvent<{ note: number }>;
@@ -84,5 +84,5 @@ export interface DrawKeyboardEventMap {
 }
 
 declare global {
-  interface HTMLElementEventMap extends DrawKeyboardEventMap {}
+  interface HTMLElementEventMap extends DrawPianoEventMap {}
 }

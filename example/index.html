@@ -161,6 +161,42 @@
         cursor: pointer;
       }
 
+      /* Styled select to match buttons */
+      .select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background: linear-gradient(135deg, #0b1220 0%, #111827 100%);
+        border: 1px solid #1f2937;
+        color: var(--text);
+        padding: 10px 40px 10px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        width: 100%;
+        outline: none;
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+      .select:focus {
+        border-color: #374151;
+        box-shadow: 0 0 0 3px rgba(78, 161, 255, 0.25);
+      }
+      .select-wrapper {
+        position: relative;
+      }
+      .select-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid var(--muted);
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
       .btn {
         background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
         border: 1px solid #4b5563;
@@ -474,12 +510,16 @@ keyboard.setQwertyMap({ KeyZ: 0, KeyS: 1, KeyX: 2 /* ... */ });</code></pre>
           </div>
         </div>
         <h3 style="margin-top:1.25rem">From CDN</h3>
-        <div class="control" style="max-width:320px;">
-          <label for="cdnSelect">CDN Provider</label>
-          <select id="cdnSelect">
-            <option value="unpkg" selected>unpkg</option>
-            <option value="jsdelivr">jsDelivr</option>
-          </select>
+        <div class="example-card" style="max-width:420px;">
+          <h3 style="margin-top:0">CDN Provider</h3>
+          <div class="control" style="margin-top:8px;">
+            <div class="select-wrapper">
+              <select id="cdnSelect" class="select">
+                <option value="unpkg" selected>unpkg</option>
+                <option value="jsdelivr">jsDelivr</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div id="cdn-unpkg" class="cdn-panel">
           <div class="example-grid">
@@ -526,7 +566,7 @@ keyboard.setQwertyMap({ KeyZ: 0, KeyS: 1, KeyX: 2 /* ... */ });</code></pre>
 
     <script type="module">
       // Development-only module import. The build:site script rewrites this for production.
-  import { DrawPiano, DrawKeyboard } from '../src/index.ts';
+  import { DrawPiano } from '../src/index.ts';
 
       // Create keyboard instance
   const keyboard = new DrawPiano({
@@ -686,10 +726,6 @@ keyboard.setQwertyMap({ KeyZ: 0, KeyS: 1, KeyX: 2 /* ... */ });</code></pre>
       demoBtn.style.marginTop = '12px';
       demoBtn.addEventListener('click', playChord);
       controls.resetBtn.parentElement.appendChild(demoBtn);
-
-      // Expose to window for console experimentation
-  window.keyboard = keyboard;
-  window.DrawPiano = DrawKeyboard;
 
   console.log('🎹 DrawPiano demo ready! Try:');
       console.log('- keyboard.press(60, 100) // Press middle C');

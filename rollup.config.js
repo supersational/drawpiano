@@ -39,14 +39,14 @@ const umdConfig = defineConfig({
     {
       file: 'dist/umd/drawpiano.js',
       format: 'umd',
-      name: 'DrawKeyboard',
+  name: 'DrawPiano',
       exports: 'default',
       sourcemap: true,
     },
     {
       file: 'dist/umd/drawpiano.min.js',
       format: 'umd',
-      name: 'DrawKeyboard',
+  name: 'DrawPiano',
       exports: 'default',
       sourcemap: true,
       plugins: [terser()],

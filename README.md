@@ -30,9 +30,9 @@ npm install drawpiano
 ### ES Modules
 
 ```javascript
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   container: document.getElementById('keyboard-container'),
   onNoteOn: (note, velocity) => console.log('Note on:', note, velocity),
   onNoteOff: (note) => console.log('Note off:', note),
@@ -42,7 +42,7 @@ const keyboard = new DrawKeyboard({
 ### CommonJS
 
 ```javascript
-const { DrawKeyboard } = require('drawpiano');
+const { DrawPiano } = require('drawpiano');
 ```
 
 ### CDN (UMD)
@@ -50,7 +50,7 @@ const { DrawKeyboard } = require('drawpiano');
 ```html
 <script src="https://unpkg.com/drawpiano@latest/dist/umd/drawpiano.min.js"></script>
 <script>
-  const keyboard = new DrawKeyboard({
+  const keyboard = new DrawPiano({
     container: document.body,
     onNoteOn: (note, velocity) => console.log('Note on:', note, velocity),
   });
@@ -60,7 +60,7 @@ const { DrawKeyboard } = require('drawpiano');
 ## Configuration
 
 ```typescript
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   // Container and canvas
   container?: HTMLElement,          // Container element
   canvas?: HTMLCanvasElement,       // Existing canvas (optional)
@@ -154,7 +154,7 @@ keyboard.setNoteLabel(60, 'C4', '#000'); // Add a label to middle C
 To disable gestures:
 
 ```ts
-new DrawKeyboard({ gestures: { pitchBend: false, modulation: false } });
+new DrawPiano({ gestures: { pitchBend: false, modulation: false } });
 ```
 
 ## Events
@@ -188,13 +188,13 @@ keyboard.addEventListener('midi', (e) => {
 ### Web MIDI API Example
 
 ```javascript
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
 // Get MIDI output
 const midiAccess = await navigator.requestMIDIAccess();
 const midiOutput = midiAccess.outputs.values().next().value;
 
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   container: document.getElementById('keyboard'),
   onMidi: (message) => {
     if (midiOutput) {
@@ -207,13 +207,13 @@ const keyboard = new DrawKeyboard({
 ### Audio Context Integration
 
 ```javascript
-import { DrawKeyboard } from 'drawpiano';
+import { DrawPiano } from 'drawpiano';
 
 // Simple sine wave synthesizer
 const audioContext = new AudioContext();
 const activeNotes = new Map();
 
-const keyboard = new DrawKeyboard({
+const keyboard = new DrawPiano({
   container: document.getElementById('keyboard'),
   onNoteOn: (note, velocity) => {
     const frequency = 440 * Math.pow(2, (note - 69) / 12);
@@ -269,13 +269,13 @@ npm test
 Enable QWERTY input (global, layout-independent):
 
 ```ts
-new DrawKeyboard({ qwertyLayout: 'singleRow' });
-new DrawKeyboard({ qwertyLayout: 'singleRowExtended' }); // adds ` . /
-new DrawKeyboard({ qwertyLayout: 'doubleRow' });
-new DrawKeyboard({ qwertyLayout: 'doubleRowExtended' }); // adds - = ; ` and . /
+new DrawPiano({ qwertyLayout: 'singleRow' });
+new DrawPiano({ qwertyLayout: 'singleRowExtended' }); // adds ` . /
+new DrawPiano({ qwertyLayout: 'doubleRow' });
+new DrawPiano({ qwertyLayout: 'doubleRowExtended' }); // adds - = ; ` and . /
 
 // Set the typing base note (default C4)
-new DrawKeyboard({ qwertyLayout: 'singleRow', qwertyBaseNote: 'C4' });
+new DrawPiano({ qwertyLayout: 'singleRow', qwertyBaseNote: 'C4' });
 ```
 
 ## Built Files
