@@ -109,10 +109,11 @@ export class DrawPiano extends EventTarget {
   private qwertyCustomMap: Record<string, number> | null = null;
 
   // Internal rendering state
-  private devicePixelRatio: number;
   private readonly canvasMarginX = 2;
   private readonly canvasMarginY = 2;
   private visibleWhiteKeys = 34;
+  private canvasWidthCSS = 0;
+  private canvasHeightCSS = 0;
   private renderQueue: Array<[number, string, boolean]> = [];
   private activeTouches: Record<number, TouchState> = {};
   // Overlays
@@ -158,7 +159,6 @@ export class DrawPiano extends EventTarget {
     this.maxVisibleWhiteKeys = clamp(options.maxWhiteKeys ?? 68, 1, 88);
     this.highlightColor = options.highlightColor || '#4ea1ff';
     this.noteVelocity = clamp(options.velocity ?? 100, 1, 127);
-    this.devicePixelRatio = window.devicePixelRatio || 1;
     this.showOctaveLabels = options.showOctaveLabels ?? true;
     if (options.gestures) {
       this.gestures = {
@@ -459,28 +459,25 @@ export class DrawPiano extends EventTarget {
       ? this.canvas.parentElement.clientWidth
       : window.innerWidth;
 
-    this.devicePixelRatio = window.devicePixelRatio || 1;
-
     // Calculate how many white keys fit in the available width
     this.visibleWhiteKeys = Math.min(
       this.maxVisibleWhiteKeys,
       Math.max(1, Math.floor((containerWidth - 4) / this.whiteKeyWidth))
     );
 
-    const canvasWidthCSS = this.visibleWhiteKeys * this.whiteKeyWidth + 4;
-    const canvasHeightCSS = Math.max(1, this.whiteKeyHeight) + 4;
+    this.canvasWidthCSS = this.visibleWhiteKeys * this.whiteKeyWidth + 4;
+    this.canvasHeightCSS = Math.max(1, this.whiteKeyHeight) + 4;
 
-    // Set canvas size accounting for device pixel ratio
-    this.canvas.width = Math.max(1, canvasWidthCSS) * this.devicePixelRatio;
-    this.canvas.height = Math.max(1, canvasHeightCSS) * this.devicePixelRatio;
+    // Set canvas size at 1:1 for pixel-perfect rendering (CSS handles display scaling)
+    this.canvas.width = Math.max(1, this.canvasWidthCSS);
+    this.canvas.height = Math.max(1, this.canvasHeightCSS);
 
-    // Set CSS size (actual display size)
-    this.canvas.style.width = canvasWidthCSS + 'px';
-    this.canvas.style.height = canvasHeightCSS + 'px';
+    // Set CSS size (actual display size) - same as canvas for 1:1
+    this.canvas.style.width = this.canvasWidthCSS + 'px';
+    this.canvas.style.height = this.canvasHeightCSS + 'px';
 
-    // Reset and scale context for high-DPI displays
+    // Reset transform (no scaling needed for 1:1)
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    this.ctx.scale(this.devicePixelRatio, this.devicePixelRatio);
 
     this.drawPianoSkeleton();
   }
@@ -516,9 +513,9 @@ export class DrawPiano extends EventTarget {
       n++;
     }
 
-    // Clear canvas with white background
+    // Clear canvas with white background (use CSS dimensions since context is scaled)
     ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillRect(0, 0, this.canvasWidthCSS, this.canvasHeightCSS);
 
     // Draw white keys and black keys
     ctx.lineJoin = 'miter';
@@ -789,8 +786,8 @@ export class DrawPiano extends EventTarget {
     }
 
     // Handle modulation (Y-axis movement)
-  let controlChangeNumber = 11;
-  let modulationAmount = 0;
+    let controlChangeNumber = 11;
+    let modulationAmount = 0;
     if (this.gestures.modulation && maxYMovement >= 0) {
       controlChangeNumber = 11;
       modulationAmount = Math.min(127, Math.max(0, 127 - maxYMovement));
